@@ -7,9 +7,10 @@
   color-scheme: light dark;
 
   /* Cozy Soft Pastel Palette */
-  --cozy-primary: #7C83FD;
-  --cozy-primary-hover: #656de8;
+  --cozy-primary: #6366F1;
+  --cozy-primary-hover: #4F46E5;
   --cozy-primary-soft: #EEF1FF;
+  --cozy-primary-text: #4338CA;
   --cozy-peach: #FF9F45;
   --cozy-mint: #6BCB77;
   --cozy-pink: #FF87B2;
@@ -19,33 +20,33 @@
   /* Canvas & Surfaces */
   --jira-body-bg: #FAF9F6;      /* Off-white warm cream */
   --jira-side-bg: #FFFFFF;
-  --jira-global-bg: #7C83FD;    /* Lavender primary global bar */
+  --jira-global-bg: #6366F1;    /* Crisp indigo-lavender global bar */
   --jira-column-bg: #F3F4F9;    /* Soft pillowy column background */
   --jira-card-bg: #FFFFFF;
-  --jira-border: #E8EBF3;
+  --jira-border: #DCE1EE;
 
-  /* Typography */
-  --text-main: #2D3748;
-  --text-muted: #718096;
-  --text-faint: #A0AEC0;
+  /* Typography (Consistent crisp high-contrast dark text) */
+  --text-main: #111827;
+  --text-muted: #1F2937;
+  --text-faint: #374151;
 
   /* Badges */
   --badge-blue: #EBF4FF;
-  --badge-blue-text: #4299E1;
+  --badge-blue-text: #1D4ED8;
   --badge-green: #F0FFF4;
-  --badge-green-text: #38A169;
-  --badge-yellow: #FFFFF0;
-  --badge-yellow-text: #D69E2E;
+  --badge-green-text: #15803D;
+  --badge-yellow: #FEFCE8;
+  --badge-yellow-text: #A16207;
   --badge-red: #FFF5F5;
-  --badge-red-text: #E53E3E;
+  --badge-red-text: #B91C1C;
   --badge-purple: #FAF5FF;
-  --badge-purple-text: #805AD5;
+  --badge-purple-text: #6D28D9;
 
   /* Soft Shapes & Shadows */
   --radius-card: 14px;
   --radius-btn: 10px;
   --radius-pill: 999px;
-  --font-family: 'Plus Jakarta Sans', 'Mitr', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-family: 'Plus Jakarta Sans', 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --card-shadow: 0 4px 12px rgba(124, 131, 253, 0.06);
   --card-shadow-hover: 0 8px 20px rgba(124, 131, 253, 0.12);
 }
@@ -59,9 +60,10 @@
     --jira-card-bg: #272C3E;
     --jira-border: #2D3349;
 
-    --text-main: #EDF2F7;
-    --text-muted: #A0AEC0;
-    --text-faint: #718096;
+    --cozy-primary-text: #C7D2FE;
+    --text-main: #F9FAFB;
+    --text-muted: #E5E7EB;
+    --text-faint: #D1D5DB;
 
     --badge-blue: #23354E;
     --badge-blue-text: #63B3ED;
@@ -239,7 +241,7 @@ body {
 
 .back-to-hub-btn {
   background: var(--cozy-primary-soft);
-  color: var(--cozy-primary);
+  color: var(--cozy-primary-text);
   border: none;
   font-size: 12px;
   font-weight: 600;
@@ -340,9 +342,9 @@ body {
   border-radius: 12px;
   border: none;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-main);
   font-size: 13.5px;
-  font-weight: 500;
+  font-weight: 600;
   text-align: left;
   cursor: pointer;
   width: 100%;
@@ -361,8 +363,8 @@ body {
 
 .side-nav-item.active {
   background-color: var(--cozy-primary-soft);
-  color: var(--cozy-primary);
-  font-weight: 600;
+  color: var(--cozy-primary-text);
+  font-weight: 700;
 }
 
 /* 3. Main Workspace Canvas */
@@ -515,8 +517,8 @@ body {
 .hub-card-key {
   display: inline-block;
   font-size: 11px;
-  font-weight: 600;
-  color: var(--cozy-primary);
+  font-weight: 700;
+  color: var(--cozy-primary-text);
   background: var(--cozy-primary-soft);
   padding: 2px 8px;
   border-radius: var(--radius-pill);
@@ -589,7 +591,7 @@ body {
   font-size: 11.5px;
   font-weight: 700;
   background: var(--jira-side-bg);
-  color: var(--cozy-primary);
+  color: var(--cozy-primary-text);
   padding: 2px 8px;
   border-radius: var(--radius-pill);
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
@@ -903,12 +905,12 @@ body {
 }
 
 .owner-pill {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 11.5px;
+  font-weight: 700;
   padding: 3px 8px;
   border-radius: var(--radius-pill);
   background: var(--cozy-primary-soft);
-  color: var(--cozy-primary);
+  color: var(--cozy-primary-text);
   white-space: nowrap;
   display: inline-block;
   overflow: hidden;
@@ -919,6 +921,7 @@ body {
 .phase-date-input {
   font-family: inherit;
   font-size: 11.5px;
+  font-weight: 600;
   padding: 5px 8px;
   border: 1px solid var(--jira-border);
   border-radius: var(--radius-pill);
@@ -1011,22 +1014,23 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  border-right: 1px solid rgba(0, 0, 0, 0.06);
   font-size: 10.5px;
+  font-weight: 600;
   line-height: 1.1;
   box-sizing: border-box;
   flex-shrink: 0;
-  color: var(--text-muted);
+  color: var(--text-main);
 }
 
 .gantt-day-header-cell.weekend {
-  background: rgba(0, 0, 0, 0.035);
+  background: rgba(0, 0, 0, 0.04);
   color: var(--text-faint);
 }
 
 .gantt-day-header-cell.today {
-  background: rgba(124, 131, 253, 0.12);
-  color: var(--cozy-primary);
+  background: rgba(99, 102, 241, 0.14);
+  color: var(--cozy-primary-text);
   font-weight: 700;
 }
 
@@ -1037,6 +1041,7 @@ body {
 
 .gantt-day-header-cell .d-dow {
   font-size: 9.5px;
+  font-weight: 600;
   text-transform: uppercase;
 }
 
@@ -1217,7 +1222,7 @@ body {
 
 .btn-secondary {
   background: var(--cozy-primary-soft);
-  color: var(--cozy-primary);
+  color: var(--cozy-primary-text);
 }
 
 .btn-secondary:hover {
@@ -1236,7 +1241,7 @@ body {
 
 .btn-ghost {
   background: transparent;
-  color: var(--text-muted);
+  color: var(--text-main);
 }
 
 .btn-ghost:hover {
