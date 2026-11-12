@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=3.4">
+  <link rel="stylesheet" href="./styles.css?v=3.5">
 </head>
 <body>
   <div class="jira-layout" id="appLayout">
@@ -23,6 +23,10 @@
       </button>
       <button type="button" class="global-icon-btn" id="dataBackupBtn" title="สำรอง / แชร์ข้อมูล JSON">
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+      <button type="button" class="global-icon-btn cloud-sync-btn" id="cloudSyncBtn" title="Cloud Sync (PC ↔ Mobile)">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+        <span class="cloud-status-dot" id="cloudStatusDot" aria-hidden="true"></span>
       </button>
       <button type="button" class="global-icon-btn new-proj-quick" id="quickNewProjBtn" title="+ สร้างโปรเจกต์ใหม่">
         +
@@ -285,6 +289,7 @@
         Data is saved locally in your browser. You can export a JSON backup file or copy a shareable link:
       </p>
       <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button type="button" class="btn btn-primary" id="openCloudSyncFromBackupBtn">☁️ Cloud Sync (PC ↔ Mobile)</button>
         <button type="button" class="btn btn-secondary" id="exportJsonBtn">💾 Export projects.json</button>
         <button type="button" class="btn btn-secondary" id="importJsonBtn">📂 Import from JSON</button>
         <input type="file" id="importJsonInput" accept=".json" hidden>
@@ -296,8 +301,62 @@
     </div>
   </dialog>
 
+  <!-- MODAL: Cloud Sync Settings -->
+  <dialog id="cloudSyncDialog" class="jira-dialog" closedby="any" aria-labelledby="cloudSyncTitle">
+    <form id="cloudSyncForm" class="jira-modal-form" novalidate autocomplete="off">
+      <div class="jira-modal-head">
+        <h2 id="cloudSyncTitle">☁️ Cloud Sync (PC ↔ Mobile)</h2>
+        <button type="button" class="icon-close-btn" data-close>✕</button>
+      </div>
+      <div class="jira-modal-body">
+        <div class="cloud-status-banner">
+          <span>Status</span>
+          <span class="cloud-status-pill" id="cloudSyncStatusPill">Local Only</span>
+        </div>
+        <p style="font-size: 13px; color: var(--text-muted); margin: 0; line-height: 1.55;">
+          Connect a free Supabase database so changes on PC and mobile sync automatically in real time.
+        </p>
+        <div class="field">
+          <label for="cloudWorkspaceId">Workspace ID <span class="req">*</span></label>
+          <input type="text" id="cloudWorkspaceId" required placeholder="e.g. autosmart-recon-hub">
+        </div>
+        <div class="field">
+          <label for="cloudSupabaseUrl">Supabase Project URL <span class="req">*</span></label>
+          <input type="url" id="cloudSupabaseUrl" required placeholder="https://xxxxxxxxxxxx.supabase.co">
+        </div>
+        <div class="field">
+          <label for="cloudSupabaseKey">Supabase Anon / Publishable Key <span class="req">*</span></label>
+          <input type="text" id="cloudSupabaseKey" required placeholder="eyJ... or sb_publishable_...">
+        </div>
+        <details class="cloud-sql-details">
+          <summary>First-time Supabase SQL Setup (Click to expand)</summary>
+          <div class="cloud-sql-box">
+            <pre id="cloudSetupSqlPre">create table if not exists cuteflow_workspaces (
+  id text primary key,
+  data jsonb not null,
+  updated_at timestamptz not null default now()
+);
+alter table cuteflow_workspaces enable row level security;
+create policy "Allow public workspace sync"
+  on cuteflow_workspaces for all
+  using (true) with check (true);</pre>
+            <button type="button" class="btn btn-secondary btn-sm" id="copyCloudSqlBtn">📋 Copy SQL</button>
+          </div>
+        </details>
+      </div>
+      <div class="jira-modal-foot">
+        <div class="modal-foot-left">
+          <button type="button" class="btn btn-danger btn-ghost" id="disconnectCloudBtn" style="display: none;">Disconnect</button>
+          <button type="button" class="btn btn-secondary" id="copyCloudLinkBtn" style="display: none;">📱 Copy Sync Link</button>
+        </div>
+        <button type="button" class="btn btn-secondary" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary" id="saveCloudSyncBtn">Save &amp; Sync</button>
+      </div>
+    </form>
+  </dialog>
+
   <div id="toast" class="jira-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=3.4"></script>
+  <script src="./app.js?v=3.5"></script>
 </body>
 </html>

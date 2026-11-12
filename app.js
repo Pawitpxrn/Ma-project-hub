@@ -73,6 +73,23 @@ function initAriaInvalidSync() {
    ========================================================================== */
 
 const STORAGE_KEY = 'cuteflow_workspace_projects_v11';
+const CLOUD_CONFIG_KEY = 'cuteflow_cloud_sync_v1';
+const CLOUD_TABLE = 'cuteflow_workspaces';
+const DEFAULT_CLOUD_CONFIG = {
+  supabaseUrl: '',
+  supabaseAnonKey: '',
+  workspaceId: 'autosmart-recon-hub'
+};
+
+let cloudState = {
+  status: 'local', // 'local' | 'syncing' | 'synced' | 'error'
+  detail: 'Local Only',
+  lastCloudUpdatedAt: null,
+  pushTimer: null,
+  isPushing: false,
+  autoPollTimer: null,
+  listenersBound: false
+};
 
 const AUTOSMART_RECON_PROJECT = {
   id: 'proj_autosmart_recon',
@@ -304,7 +321,207 @@ function esc(str) {
     .replace(/'/g, '&#39;');
 }
 
-function persistState() {
+function encodeBase64Utf8(obj) {
+  return encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(obj)))));
+}
+
+function decodeBase64Utf8(encoded) {
+  return JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(encoded)))));
+}
+
+function sanitizeSupabaseUrl(url) {
+  return String(url || '').trim().replace(/\/+$/, '');
+}
+
+function getCloudConfig() {
+  let saved = {};
+  try {
+    saved = JSON.parse(localStorage.getItem(CLOUD_CONFIG_KEY) || '{}') || {};
+  } catch { saved = {}; }
+  return {
+    supabaseUrl: sanitizeSupabaseUrl(saved.supabaseUrl || DEFAULT_CLOUD_CONFIG.supabaseUrl),
+    supabaseAnonKey: String(saved.supabaseAnonKey || DEFAULT_CLOUD_CONFIG.supabaseAnonKey).trim(),
+    workspaceId: String(saved.workspaceId || DEFAULT_CLOUD_CONFIG.workspaceId).trim()
+  };
+}
+
+function isCloudSyncEnabled(cfg = getCloudConfig()) {
+  return Boolean(cfg.supabaseUrl && cfg.supabaseAnonKey && cfg.workspaceId);
+}
+
+function setCloudUiState(status, detail) {
+  cloudState.status = status;
+  cloudState.detail = detail;
+  const dot = $('cloudStatusDot');
+  const pill = $('cloudSyncStatusPill');
+  const btn = $('cloudSyncBtn');
+
+  if (dot) {
+    dot.classList.remove('is-synced', 'is-syncing', 'is-error');
+    if (status === 'synced') dot.classList.add('is-synced');
+    else if (status === 'syncing') dot.classList.add('is-syncing');
+    else if (status === 'error') dot.classList.add('is-error');
+  }
+  if (pill) {
+    pill.textContent = detail;
+    pill.classList.remove('is-synced', 'is-syncing', 'is-error');
+    if (status === 'synced') pill.classList.add('is-synced');
+    else if (status === 'syncing') pill.classList.add('is-syncing');
+    else if (status === 'error') pill.classList.add('is-error');
+  }
+  if (btn) {
+    btn.title = `Cloud Sync: ${detail}`;
+  }
+}
+
+function supabaseHeaders(cfg, extra = {}) {
+  return {
+    apikey: cfg.supabaseAnonKey,
+    Authorization: `Bearer ${cfg.supabaseAnonKey}`,
+    ...extra
+  };
+}
+
+async function fetchCloudRecord(cfg, metaOnly = false) {
+  const select = metaOnly ? 'updated_at' : 'data,updated_at';
+  const url = `${cfg.supabaseUrl}/rest/v1/${CLOUD_TABLE}?id=eq.${encodeURIComponent(cfg.workspaceId)}&select=${select}`;
+  const res = await fetch(url, { headers: supabaseHeaders(cfg) });
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status}: ${errText || res.statusText}`);
+  }
+  const rows = await res.json();
+  return Array.isArray(rows) ? rows[0] || null : null;
+}
+
+async function pushCloudRecord(cfg = getCloudConfig()) {
+  if (!isCloudSyncEnabled(cfg)) return false;
+  cloudState.isPushing = true;
+  setCloudUiState('syncing', 'Syncing...');
+  try {
+    const url = `${cfg.supabaseUrl}/rest/v1/${CLOUD_TABLE}?on_conflict=id`;
+    const payload = {
+      id: cfg.workspaceId,
+      data: {
+        projects: appState.projects,
+        activeProjectId: appState.activeProjectId
+      },
+      updated_at: new Date().toISOString()
+    };
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: supabaseHeaders(cfg, {
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates,return=representation'
+      }),
+      body: JSON.stringify(payload)
+    });
+    if (!res.ok) {
+      const errText = await res.text().catch(() => '');
+      throw new Error(`HTTP ${res.status}: ${errText || res.statusText}`);
+    }
+    const rows = await res.json().catch(() => []);
+    cloudState.lastCloudUpdatedAt = rows[0]?.updated_at || payload.updated_at;
+    setCloudUiState('synced', `Synced (${cfg.workspaceId})`);
+    return true;
+  } catch (err) {
+    console.warn('Cloud push failed:', err);
+    setCloudUiState('error', 'Sync Error');
+    return false;
+  } finally {
+    cloudState.isPushing = false;
+  }
+}
+
+async function pullCloudAndApply(cfg = getCloudConfig(), { seedIfEmpty = true, force = false } = {}) {
+  if (!isCloudSyncEnabled(cfg)) {
+    setCloudUiState('local', 'Local Only');
+    return false;
+  }
+  try {
+    if (!force && cloudState.lastCloudUpdatedAt) {
+      const meta = await fetchCloudRecord(cfg, true);
+      if (meta && meta.updated_at === cloudState.lastCloudUpdatedAt) {
+        setCloudUiState('synced', `Synced (${cfg.workspaceId})`);
+        return false;
+      }
+    }
+    setCloudUiState('syncing', 'Checking Cloud...');
+    const row = await fetchCloudRecord(cfg, false);
+    if (row && Array.isArray(row.data?.projects) && row.data.projects.length > 0) {
+      const changed = force || row.updated_at !== cloudState.lastCloudUpdatedAt;
+      cloudState.lastCloudUpdatedAt = row.updated_at;
+      if (changed) {
+        appState.projects = row.data.projects;
+        const hasActive = appState.projects.some((p) => p.id === row.data.activeProjectId);
+        appState.activeProjectId = hasActive ? row.data.activeProjectId : appState.projects[0].id;
+        persistState(true);
+        renderApp();
+      }
+      setCloudUiState('synced', `Synced (${cfg.workspaceId})`);
+      return true;
+    }
+    if (!row && seedIfEmpty) {
+      return await pushCloudRecord(cfg);
+    }
+    setCloudUiState('synced', `Synced (${cfg.workspaceId})`);
+    return false;
+  } catch (err) {
+    console.warn('Cloud pull failed:', err);
+    setCloudUiState('error', 'Connection Error');
+    return false;
+  }
+}
+
+function scheduleCloudPush() {
+  const cfg = getCloudConfig();
+  if (!isCloudSyncEnabled(cfg)) return;
+  if (cloudState.pushTimer) clearTimeout(cloudState.pushTimer);
+  setCloudUiState('syncing', 'Saving...');
+  cloudState.pushTimer = setTimeout(() => {
+    cloudState.pushTimer = null;
+    pushCloudRecord(getCloudConfig());
+  }, 450);
+}
+
+function initCloudSync() {
+  const cfg = getCloudConfig();
+  if (!isCloudSyncEnabled(cfg)) {
+    setCloudUiState('local', 'Local Only');
+    return;
+  }
+  pullCloudAndApply(cfg, { seedIfEmpty: true, force: true });
+
+  const refreshIfSafe = () => {
+    if (document.visibilityState !== 'visible') return;
+    if (cloudState.pushTimer || cloudState.isPushing) return;
+    if (document.querySelector('dialog[open]')) return;
+    const latestCfg = getCloudConfig();
+    if (isCloudSyncEnabled(latestCfg)) pullCloudAndApply(latestCfg, { seedIfEmpty: false });
+  };
+
+  if (!cloudState.listenersBound) {
+    document.addEventListener('visibilitychange', refreshIfSafe);
+    window.addEventListener('focus', refreshIfSafe);
+    cloudState.listenersBound = true;
+  }
+  if (cloudState.autoPollTimer) clearInterval(cloudState.autoPollTimer);
+  cloudState.autoPollTimer = setInterval(refreshIfSafe, 12000);
+}
+
+function openCloudSyncModal() {
+  const cfg = getCloudConfig();
+  const hasLocalSaved = Boolean(localStorage.getItem(CLOUD_CONFIG_KEY));
+  $('cloudWorkspaceId').value = cfg.workspaceId || 'autosmart-recon-hub';
+  $('cloudSupabaseUrl').value = cfg.supabaseUrl || '';
+  $('cloudSupabaseKey').value = cfg.supabaseAnonKey || '';
+  $('disconnectCloudBtn').style.display = hasLocalSaved ? 'inline-flex' : 'none';
+  $('copyCloudLinkBtn').style.display = isCloudSyncEnabled(cfg) ? 'inline-flex' : 'none';
+  setCloudUiState(cloudState.status, cloudState.detail);
+  $('cloudSyncDialog').showModal();
+}
+
+function persistState(localOnly = false) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       projects: appState.projects,
@@ -316,9 +533,46 @@ function persistState() {
   } catch (err) {
     console.warn('Persist failed', err);
   }
+  if (!localOnly) {
+    scheduleCloudPush();
+  }
+}
+
+function applyHashImportIfPresent() {
+  const hash = location.hash || '';
+  if (!hash) return false;
+  let importedState = false;
+  try {
+    if (hash.startsWith('#sync=')) {
+      const cfg = decodeBase64Utf8(hash.slice(6));
+      if (cfg?.supabaseUrl && cfg?.supabaseAnonKey) {
+        localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify({
+          supabaseUrl: sanitizeSupabaseUrl(cfg.supabaseUrl),
+          supabaseAnonKey: String(cfg.supabaseAnonKey).trim(),
+          workspaceId: String(cfg.workspaceId || DEFAULT_CLOUD_CONFIG.workspaceId).trim()
+        }));
+        history.replaceState(null, '', location.pathname + location.search);
+        setTimeout(() => showToast('เชื่อมต่อ Cloud Sync สำเร็จแล้ว ☁️✨'), 150);
+      }
+    } else if (hash.startsWith('#state=')) {
+      const projects = decodeBase64Utf8(hash.slice(7));
+      if (Array.isArray(projects) && projects.length > 0) {
+        appState.projects = projects;
+        appState.activeProjectId = projects[0].id;
+        persistState(true);
+        history.replaceState(null, '', location.pathname + location.search);
+        importedState = true;
+        setTimeout(() => showToast('นำเข้าข้อมูลจากลิงก์แล้ว ✨'), 150);
+      }
+    }
+  } catch (err) {
+    console.warn('Hash import failed:', err);
+  }
+  return importedState;
 }
 
 function loadState() {
+  if (applyHashImportIfPresent()) return;
   let loaded = false;
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
@@ -1677,10 +1931,65 @@ function setupEventListeners() {
   });
 
   $('copyShareUrlBtn').addEventListener('click', () => {
-    const encoded = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(appState.projects)))));
-    const url = `${location.origin}${location.pathname}#state=${encoded}`;
+    const url = `${location.origin}${location.pathname}#state=${encodeBase64Utf8(appState.projects)}`;
     navigator.clipboard?.writeText(url);
     showToast('คัดลอกลิงก์แชร์แล้ว 🔗');
+  });
+
+  // Cloud Sync Modal Events
+  $('cloudSyncBtn')?.addEventListener('click', openCloudSyncModal);
+  $('openCloudSyncFromBackupBtn')?.addEventListener('click', () => {
+    $('dataDialog').close();
+    openCloudSyncModal();
+  });
+
+  $('copyCloudSqlBtn')?.addEventListener('click', () => {
+    const sql = $('cloudSetupSqlPre')?.textContent || '';
+    navigator.clipboard?.writeText(sql);
+    showToast('คัดลอก SQL Setup แล้ว 📋');
+  });
+
+  $('copyCloudLinkBtn')?.addEventListener('click', () => {
+    const cfg = getCloudConfig();
+    if (!isCloudSyncEnabled(cfg)) return;
+    const url = `${location.origin}${location.pathname}#sync=${encodeBase64Utf8(cfg)}`;
+    navigator.clipboard?.writeText(url);
+    showToast('คัดลอกลิงก์เชื่อมมือถือแล้ว 📱✨');
+  });
+
+  $('disconnectCloudBtn')?.addEventListener('click', () => {
+    localStorage.removeItem(CLOUD_CONFIG_KEY);
+    cloudState.lastCloudUpdatedAt = null;
+    if (cloudState.pushTimer) clearTimeout(cloudState.pushTimer);
+    cloudState.pushTimer = null;
+    setCloudUiState('local', 'Local Only');
+    $('cloudSyncDialog').close();
+    showToast('ตัดการเชื่อมต่อ Cloud Sync แล้ว');
+  });
+
+  $('cloudSyncForm')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const ws = $('cloudWorkspaceId').value.trim();
+    const url = sanitizeSupabaseUrl($('cloudSupabaseUrl').value);
+    const key = $('cloudSupabaseKey').value.trim();
+    if (!ws || !url || !key) {
+      showToast('กรุณากรอกข้อมูล Supabase ให้ครบ ⚠️');
+      return;
+    }
+
+    const cfg = { workspaceId: ws, supabaseUrl: url, supabaseAnonKey: key };
+    localStorage.setItem(CLOUD_CONFIG_KEY, JSON.stringify(cfg));
+    $('copyCloudLinkBtn').style.display = 'inline-flex';
+    $('disconnectCloudBtn').style.display = 'inline-flex';
+
+    const ok = await pullCloudAndApply(cfg, { seedIfEmpty: true, force: true });
+    if (ok || cloudState.status === 'synced') {
+      initCloudSync();
+      $('cloudSyncDialog').close();
+      showToast('เชื่อมต่อและซิงค์ Cloud สำเร็จ ☁️✨');
+    } else {
+      showToast('เชื่อมต่อไม่สำเร็จ ตรวจสอบ URL / Key / SQL Table ⚠️');
+    }
   });
 }
 
@@ -1696,4 +2005,5 @@ document.addEventListener('DOMContentLoaded', () => {
   loadState();
   setupEventListeners();
   renderApp();
+  initCloudSync();
 });
