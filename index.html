@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- MANDATORY: Declare support for both light and dark themes -->
+  <meta name="color-scheme" content="light dark">
+  <title>CuteFlow — บอร์ดโปรเจกต์ & ไทม์ไลน์มินิมอล</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Mitr:wght@300;400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./styles.css?v=2.9">
+</head>
+<body>
+  <div class="jira-layout" id="appLayout">
+    <!-- Global Sidebar (Icon strip: Cute rounded style) -->
+    <aside class="global-sidebar" aria-label="แถบระบบหลัก">
+      <div class="jira-brand-icon" title="CuteFlow">
+        <span class="brand-sparkle">✨</span>
+      </div>
+      <button type="button" class="global-icon-btn active" id="navAllProjectsBtn" title="หน้ารวมโปรเจกต์ทั้งหมด">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/></svg>
+      </button>
+      <button type="button" class="global-icon-btn" id="dataBackupBtn" title="สำรอง / แชร์ข้อมูล JSON">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      </button>
+      <button type="button" class="global-icon-btn new-proj-quick" id="quickNewProjBtn" title="+ สร้างโปรเจกต์ใหม่">
+        +
+      </button>
+    </aside>
+
+    <!-- Project Context Sidebar (Shows when a project is selected) -->
+    <aside class="project-sidebar" id="projectSidebar" style="display: none;">
+      <div class="proj-brand-block">
+        <button type="button" class="back-to-hub-btn" id="backToHubBtn" title="Back to All Projects">
+          ← All Projects
+        </button>
+        <div class="current-project-badge">
+          <div class="proj-avatar-icon" id="sidebarProjAvatar">🚗</div>
+          <div class="proj-meta-text">
+            <h2 class="sidebar-proj-title" id="sidebarProjTitle">Project Name</h2>
+            <span class="sidebar-proj-sub" id="sidebarProjKey">PROJ</span>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Navigation</div>
+        <button type="button" class="side-nav-item active" data-subview="board">
+          <span class="nav-emoji">📋</span>
+          Board
+        </button>
+        <button type="button" class="side-nav-item" data-subview="timeline">
+          <span class="nav-emoji">🗓️</span>
+          Timeline
+        </button>
+        <button type="button" class="side-nav-item" data-subview="phases">
+          <span class="nav-emoji">🌱</span>
+          Phases
+        </button>
+        <button type="button" class="side-nav-item" data-subview="settings">
+          <span class="nav-emoji">⚙️</span>
+          Settings
+        </button>
+      </nav>
+    </aside>
+
+    <!-- Main Dynamic Content Workspace -->
+    <main class="jira-main" id="mainWorkspace">
+      <!-- Injected via app.js -->
+    </main>
+
+    <!-- Mobile Drawer Backdrop -->
+    <div class="sidebar-backdrop" id="sidebarBackdrop" data-action="close-mobile-menu"></div>
+  </div>
+
+  <!-- MODAL: Create / Edit Project -->
+  <dialog id="projectModal" class="jira-dialog" closedby="any" aria-labelledby="projModalTitle">
+    <form id="projectForm" class="jira-modal-form" novalidate autocomplete="off">
+      <div class="jira-modal-head">
+        <h2 id="projModalTitle">Create Project</h2>
+        <button type="button" class="icon-close-btn" data-close>✕</button>
+      </div>
+      <div class="jira-modal-body">
+        <input type="hidden" id="pFormId">
+        <div class="field">
+          <label for="pFormName">Project Name <span class="req">*</span></label>
+          <input type="text" id="pFormName" required placeholder="e.g. Next-Gen Booking, Autosmart Recondition">
+          <div class="error-msg">⚠️ Please enter project name</div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="pFormKey">Key</label>
+            <input type="text" id="pFormKey" maxlength="6" placeholder="e.g. BKG, RECON">
+          </div>
+          <div class="field">
+            <label for="pFormIcon">Icon</label>
+            <select id="pFormIcon">
+              <option value="🚗" selected>🚗 Automotive</option>
+              <option value="🚘">🚘 Vehicle / Car</option>
+              <option value="🛞">🛞 Tire & Wheels</option>
+              <option value="💻">💻 Software / Web App</option>
+              <option value="📱">📱 Mobile App</option>
+              <option value="🚀">🚀 Product Launch</option>
+              <option value="✨">✨ Features</option>
+              <option value="🌷">🌷 Tulip</option>
+              <option value="🌿">🌿 Greenfield</option>
+              <option value="☕">☕ Focus</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="pFormDesc">Description</label>
+          <textarea id="pFormDesc" rows="2" placeholder="Brief project summary or goals"></textarea>
+        </div>
+      </div>
+      <div class="jira-modal-foot">
+        <button type="button" class="btn btn-secondary" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Project</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: Create / Edit Task or Issue -->
+  <dialog id="issueModal" class="jira-dialog jira-dialog-lg" closedby="any" aria-labelledby="issueModalTitle">
+    <form id="issueForm" class="jira-modal-form" novalidate autocomplete="off">
+      <div class="jira-modal-head">
+        <div class="issue-head-type">
+          <span class="type-pill-select" id="issueTypeTag">TASK</span>
+          <h2 id="issueModalTitle">Create Issue</h2>
+        </div>
+        <button type="button" class="icon-close-btn" data-close>✕</button>
+      </div>
+      <div class="jira-modal-body">
+        <input type="hidden" id="taskFormId">
+        <div class="field">
+          <label for="taskFormTitle">Title <span class="req">*</span></label>
+          <input type="text" id="taskFormTitle" required placeholder="e.g. Program Development, Unit Testing...">
+          <div class="error-msg">⚠️ Please enter issue title</div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="taskFormType">Type</label>
+            <select id="taskFormType">
+              <option value="task">📝 Task</option>
+              <option value="bug">🍓 Bug</option>
+              <option value="story">✨ Story</option>
+              <option value="blocker">🚧 Blocker</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="taskFormStatus">Status</label>
+            <select id="taskFormStatus">
+              <option value="todo">📋 To Do</option>
+              <option value="in_progress">☕ In Progress</option>
+              <option value="review">👀 Code Review / Test</option>
+              <option value="done">🎉 Done</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="taskFormPhase">Phase</label>
+            <select id="taskFormPhase">
+              <!-- Populated dynamically -->
+            </select>
+          </div>
+          <div class="field">
+            <label for="taskFormPriority">Priority</label>
+            <select id="taskFormPriority">
+              <option value="highest">🔴 Highest</option>
+              <option value="high">🟠 High</option>
+              <option value="medium" selected>🟡 Medium</option>
+              <option value="low">🟢 Low</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="field-row">
+          <div class="field">
+            <label for="taskFormAssignee">Assignee</label>
+            <input type="text" id="taskFormAssignee" placeholder="e.g. MSD, i24, Dev Team">
+          </div>
+          <div class="field">
+            <label for="taskFormDueDate">Due Date</label>
+            <input type="date" id="taskFormDueDate">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="taskFormDesc">Description</label>
+          <textarea id="taskFormDesc" rows="3" placeholder="Additional notes, specifications, or checklists..."></textarea>
+        </div>
+      </div>
+      <div class="jira-modal-foot">
+        <button type="button" class="btn btn-danger btn-ghost" id="deleteTaskBtn" style="display: none; margin-right: auto;">Delete Issue</button>
+        <button type="button" class="btn btn-secondary" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Issue</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: Add / Edit Phase (Stage Timeline) -->
+  <dialog id="phaseModal" class="jira-dialog" closedby="any" aria-labelledby="phaseModalTitle">
+    <form id="phaseForm" class="jira-modal-form" novalidate autocomplete="off">
+      <div class="jira-modal-head">
+        <h2 id="phaseModalTitle">🌱 Add Phase</h2>
+        <button type="button" class="icon-close-btn" data-close>✕</button>
+      </div>
+      <div class="jira-modal-body">
+        <input type="hidden" id="phaseFormId">
+        <div class="field">
+          <label for="phaseFormName">Phase Name <span class="req">*</span></label>
+          <input type="text" id="phaseFormName" required placeholder="e.g. Program Development, Unit Testing...">
+          <div class="error-msg">⚠️ Please enter phase name</div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="phaseFormStart">Start Date</label>
+            <input type="date" id="phaseFormStart">
+          </div>
+          <div class="field">
+            <label for="phaseFormEnd">End Date</label>
+            <input type="date" id="phaseFormEnd">
+          </div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="phaseFormOwner">Owner</label>
+            <input type="text" id="phaseFormOwner" placeholder="e.g. MSD, i24, MSD & i24">
+          </div>
+          <div class="field">
+            <label for="phaseFormColor">Color</label>
+            <select id="phaseFormColor">
+              <option value="#00818A">🌊 Teal / RECON</option>
+              <option value="#00ADB5">💠 Turquoise</option>
+              <option value="#7C83FD">💜 Lavender</option>
+              <option value="#6BCB77">🌿 Mint Fresh</option>
+              <option value="#FF9F45">🍑 Peach</option>
+              <option value="#FF87B2">🍓 Berry Pink</option>
+              <option value="#4D96FF">☁️ Sky Blue</option>
+              <option value="#FFD93D">🍋 Custard Yellow</option>
+              <option value="#E53E3E">🔴 Red / Milestone</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="phaseFormGoal">Goal</label>
+          <input type="text" id="phaseFormGoal" placeholder="Key deliverables or target for this stage">
+        </div>
+      </div>
+      <div class="jira-modal-foot">
+        <button type="button" class="btn btn-danger btn-ghost" id="deletePhaseBtn" style="display: none; margin-right: auto;">Delete Phase</button>
+        <button type="button" class="btn btn-secondary" data-close>Cancel</button>
+        <button type="submit" class="btn btn-primary">Save Phase</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- MODAL: Backup / JSON Management -->
+  <dialog id="dataDialog" class="jira-dialog" closedby="any" aria-labelledby="dataModalTitle">
+    <div class="jira-modal-head">
+      <h2 id="dataModalTitle">📦 Backup & Data Export</h2>
+      <button type="button" class="icon-close-btn" data-close>✕</button>
+    </div>
+    <div class="jira-modal-body">
+      <p style="font-size: 13.5px; color: var(--text-muted); margin-top: 0;">
+        Data is saved locally in your browser. You can export a JSON backup file or copy a shareable link:
+      </p>
+      <div style="display: flex; flex-direction: column; gap: 10px;">
+        <button type="button" class="btn btn-secondary" id="exportJsonBtn">💾 Export projects.json</button>
+        <button type="button" class="btn btn-secondary" id="importJsonBtn">📂 Import from JSON</button>
+        <input type="file" id="importJsonInput" accept=".json" hidden>
+        <button type="button" class="btn btn-secondary" id="copyShareUrlBtn">🔗 Copy Shareable Link</button>
+      </div>
+    </div>
+    <div class="jira-modal-foot">
+      <button type="button" class="btn btn-secondary" data-close>Close</button>
+    </div>
+  </dialog>
+
+  <div id="toast" class="jira-toast" role="status" aria-live="polite"></div>
+
+  <script src="./app.js?v=2.9"></script>
+</body>
+</html>

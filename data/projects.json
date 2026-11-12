@@ -1,0 +1,185 @@
+{
+  "version": 4,
+  "updatedAt": "2026-11-12T21:40:00.000Z",
+  "projects": [
+    {
+      "id": "proj_autosmart_recon",
+      "key": "RECON",
+      "name": "Autosmart Recondition",
+      "icon": "🚗",
+      "desc": "แผนงานพัฒนาและ Go-Live ระบบ RECON (1 Nov – 1 Dec 2026) Baseline schedule โดยทีม MSD & i24",
+      "phases": [
+        {
+          "id": "ph_recon_1",
+          "name": "Program Development",
+          "owner": "MSD",
+          "start": "2026-11-01",
+          "end": "2026-11-11",
+          "color": "#00818A",
+          "goal": "พัฒนาโปรแกรมและฟังก์ชันหลักของระบบ RECON โดยทีม MSD"
+        },
+        {
+          "id": "ph_recon_2",
+          "name": "Unit Testing",
+          "owner": "MSD",
+          "start": "2026-11-12",
+          "end": "2026-11-16",
+          "color": "#00ADB5",
+          "goal": "ทดสอบ Unit Testing ภายในทีมพัฒนา MSD ก่อนส่งมอบเข้า UAT"
+        },
+        {
+          "id": "ph_recon_3",
+          "name": "UAT Configuration and Setup",
+          "owner": "MSD",
+          "start": "2026-11-17",
+          "end": "2026-11-17",
+          "color": "#2EC4B6",
+          "goal": "ติดตั้ง Configuration และเตรียมสภาพแวดล้อม UAT Environment"
+        },
+        {
+          "id": "ph_recon_4",
+          "name": "UAT Readiness Review",
+          "owner": "MSD",
+          "start": "2026-11-18",
+          "end": "2026-11-18",
+          "color": "#FF9F45",
+          "goal": "ประชุมรีวิวเกณฑ์ความพร้อมก่อนเริ่มเปิดให้ผู้ใช้งานทดสอบ UAT"
+        },
+        {
+          "id": "ph_recon_5",
+          "name": "User Acceptance Testing (UAT)",
+          "owner": "i24",
+          "start": "2026-11-19",
+          "end": "2026-11-25",
+          "color": "#7C83FD",
+          "goal": "ทีม i24 ดำเนินการทดสอบระบบ RECON ตาม Test Cases และบันทึกผล"
+        },
+        {
+          "id": "ph_recon_6",
+          "name": "User Training (UAT Environment)",
+          "owner": "MSD & i24",
+          "start": "2026-11-26",
+          "end": "2026-11-26",
+          "color": "#FF87B2",
+          "goal": "จัดอบรมการใช้งานระบบจริงให้กับผู้ใช้งานบน UAT Environment"
+        },
+        {
+          "id": "ph_recon_7",
+          "name": "Production Configuration and Setup",
+          "owner": "MSD",
+          "start": "2026-11-27",
+          "end": "2026-11-27",
+          "color": "#A66CFF",
+          "goal": "จัดเตรียม Configuration และระบบบน Production Environment"
+        },
+        {
+          "id": "ph_recon_8",
+          "name": "Go-Live",
+          "owner": "MSD & i24",
+          "start": "2026-12-01",
+          "end": "2026-12-01",
+          "color": "#E53E3E",
+          "goal": "วันเปิดใช้งานระบบจริงอย่างเป็นทางการ (Go-Live Milestone ◆)"
+        }
+      ],
+      "tasks": [
+        {
+          "id": "task_recon_1",
+          "code": "RECON-1",
+          "title": "Program Development",
+          "type": "story",
+          "status": "done",
+          "priority": "high",
+          "phaseId": "ph_recon_1",
+          "assignee": "MSD",
+          "dueDate": "2026-11-11",
+          "desc": "พัฒนาโปรแกรมและฟังก์ชันหลักของระบบ RECON (01 Nov – 11 Nov 2026)"
+        },
+        {
+          "id": "task_recon_2",
+          "code": "RECON-2",
+          "title": "Unit Testing",
+          "type": "task",
+          "status": "in_progress",
+          "priority": "highest",
+          "phaseId": "ph_recon_2",
+          "assignee": "MSD",
+          "dueDate": "2026-11-16",
+          "desc": "ทดสอบ Unit Testing ภายในทีม MSD (12 Nov – 16 Nov 2026)"
+        },
+        {
+          "id": "task_recon_3",
+          "code": "RECON-3",
+          "title": "UAT Configuration and Setup",
+          "type": "task",
+          "status": "todo",
+          "priority": "high",
+          "phaseId": "ph_recon_3",
+          "assignee": "MSD",
+          "dueDate": "2026-11-17",
+          "desc": "ติดตั้งและตั้งค่าระบบบน UAT Environment (17 Nov 2026)"
+        },
+        {
+          "id": "task_recon_4",
+          "code": "RECON-4",
+          "title": "UAT Readiness Review",
+          "type": "task",
+          "status": "todo",
+          "priority": "medium",
+          "phaseId": "ph_recon_4",
+          "assignee": "MSD",
+          "dueDate": "2026-11-18",
+          "desc": "ประชุมประเมินความพร้อมก่อนเริ่มเปิดให้ผู้ใช้งานทดสอบ (18 Nov 2026)"
+        },
+        {
+          "id": "task_recon_5",
+          "code": "RECON-5",
+          "title": "User Acceptance Testing (UAT)",
+          "type": "story",
+          "status": "todo",
+          "priority": "highest",
+          "phaseId": "ph_recon_5",
+          "assignee": "i24",
+          "dueDate": "2026-11-25",
+          "desc": "ทีม i24 ทำการทดสอบระบบ RECON ตาม Test Cases (19 Nov – 25 Nov 2026)"
+        },
+        {
+          "id": "task_recon_6",
+          "code": "RECON-6",
+          "title": "User Training (UAT Environment)",
+          "type": "task",
+          "status": "todo",
+          "priority": "high",
+          "phaseId": "ph_recon_6",
+          "assignee": "MSD & i24",
+          "dueDate": "2026-11-26",
+          "desc": "จัดอบรมผู้ใช้งานบนสภาพแวดล้อม UAT (26 Nov 2026)"
+        },
+        {
+          "id": "task_recon_7",
+          "code": "RECON-7",
+          "title": "Production Configuration and Setup",
+          "type": "task",
+          "status": "todo",
+          "priority": "highest",
+          "phaseId": "ph_recon_7",
+          "assignee": "MSD",
+          "dueDate": "2026-11-27",
+          "desc": "เตรียมความพร้อม Production Environment สำหรับการเปิดจริง (27 Nov 2026)"
+        },
+        {
+          "id": "task_recon_8",
+          "code": "RECON-8",
+          "title": "Go-Live Milestone ◆",
+          "type": "story",
+          "status": "todo",
+          "priority": "highest",
+          "phaseId": "ph_recon_8",
+          "assignee": "MSD & i24",
+          "dueDate": "2026-12-01",
+          "desc": "เปิดระบบใช้งานจริงอย่างเป็นทางการ (01 Dec 2026)"
+        }
+      ]
+    }
+  ]
+}

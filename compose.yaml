@@ -1,0 +1,10 @@
+services:
+  projectflow:
+    build: .
+    container_name: projectflow-hub
+    ports:
+      - "8088:80"
+    volumes:
+      # Mount โฟลเดอร์ปัจจุบันเข้าไป เพื่อให้เวลาแก้ไฟล์ในเครื่อง เว็บบน Docker อัปเดตทันทีไม่ต้อง build ใหม่
+      - .:/usr/share/nginx/html:ro
+    restart: unless-stopped

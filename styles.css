@@ -1,0 +1,1623 @@
+/* ==========================================================================
+   CuteFlow — Cozy, Soft & Minimalist Aesthetic Theme
+   ========================================================================== */
+
+:root {
+  /* MANDATORY: Automatically adapt native UI to user system preferences */
+  color-scheme: light dark;
+
+  /* Cozy Soft Pastel Palette */
+  --cozy-primary: #7C83FD;
+  --cozy-primary-hover: #656de8;
+  --cozy-primary-soft: #EEF1FF;
+  --cozy-peach: #FF9F45;
+  --cozy-mint: #6BCB77;
+  --cozy-pink: #FF87B2;
+  --cozy-yellow: #FFD93D;
+  --cozy-sky: #4D96FF;
+
+  /* Canvas & Surfaces */
+  --jira-body-bg: #FAF9F6;      /* Off-white warm cream */
+  --jira-side-bg: #FFFFFF;
+  --jira-global-bg: #7C83FD;    /* Lavender primary global bar */
+  --jira-column-bg: #F3F4F9;    /* Soft pillowy column background */
+  --jira-card-bg: #FFFFFF;
+  --jira-border: #E8EBF3;
+
+  /* Typography */
+  --text-main: #2D3748;
+  --text-muted: #718096;
+  --text-faint: #A0AEC0;
+
+  /* Badges */
+  --badge-blue: #EBF4FF;
+  --badge-blue-text: #4299E1;
+  --badge-green: #F0FFF4;
+  --badge-green-text: #38A169;
+  --badge-yellow: #FFFFF0;
+  --badge-yellow-text: #D69E2E;
+  --badge-red: #FFF5F5;
+  --badge-red-text: #E53E3E;
+  --badge-purple: #FAF5FF;
+  --badge-purple-text: #805AD5;
+
+  /* Soft Shapes & Shadows */
+  --radius-card: 14px;
+  --radius-btn: 10px;
+  --radius-pill: 999px;
+  --font-family: 'Plus Jakarta Sans', 'Mitr', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --card-shadow: 0 4px 12px rgba(124, 131, 253, 0.06);
+  --card-shadow-hover: 0 8px 20px rgba(124, 131, 253, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --jira-body-bg: #13151C;
+    --jira-side-bg: #1A1D27;
+    --jira-global-bg: #232738;
+    --jira-column-bg: #1F2332;
+    --jira-card-bg: #272C3E;
+    --jira-border: #2D3349;
+
+    --text-main: #EDF2F7;
+    --text-muted: #A0AEC0;
+    --text-faint: #718096;
+
+    --badge-blue: #23354E;
+    --badge-blue-text: #63B3ED;
+    --badge-green: #1F3F30;
+    --badge-green-text: #68D391;
+    --badge-yellow: #3E3723;
+    --badge-yellow-text: #F6E05E;
+    --badge-red: #412426;
+    --badge-red-text: #FC8181;
+    --badge-purple: #34284E;
+    --badge-purple-text: #B794F4;
+
+    --card-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+    --card-shadow-hover: 0 8px 22px rgba(0, 0, 0, 0.35);
+  }
+
+  .gantt-month-block {
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .gantt-day-header-cell {
+    border-right-color: rgba(255, 255, 255, 0.06);
+  }
+  .gantt-day-header-cell.weekend {
+    background: rgba(255, 255, 255, 0.04);
+  }
+  .gantt-grid-column {
+    border-right-color: rgba(255, 255, 255, 0.04);
+  }
+  .gantt-grid-column.weekend {
+    background: rgba(255, 255, 255, 0.03);
+  }
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+/* Minimalist Soft Scrollbars */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(124, 131, 253, 0.25) transparent;
+}
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(124, 131, 253, 0.25);
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(124, 131, 253, 0.5);
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-family);
+  background-color: var(--jira-body-bg);
+  color: var(--text-main);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ==========================================================================
+   Cozy 3-Pane Layout
+   ========================================================================== */
+
+.jira-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* 1. Global Leftmost Icon Bar */
+.global-sidebar {
+  width: 62px;
+  min-width: 62px;
+  background-color: var(--jira-global-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  gap: 14px;
+  z-index: 10;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.03);
+}
+
+.jira-brand-icon {
+  margin-bottom: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-sparkle {
+  font-size: 24px;
+  filter: drop-shadow(0 2px 4px rgba(255, 255, 255, 0.3));
+}
+
+.global-icon-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 14px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.global-icon-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+  color: #ffffff;
+  transform: scale(1.06);
+}
+
+.global-icon-btn.active {
+  background: #ffffff;
+  color: var(--cozy-primary);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.global-icon-btn.new-proj-quick {
+  font-size: 22px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  margin-top: 6px;
+  border-radius: 50%;
+}
+
+.global-icon-btn.new-proj-quick:hover {
+  background: #ffffff;
+  color: var(--cozy-primary);
+  transform: rotate(90deg) scale(1.08);
+}
+
+/* 2. Project Context Sub-Sidebar */
+.project-sidebar {
+  width: 220px;
+  min-width: 220px;
+  background-color: var(--jira-side-bg);
+  border-right: 1px solid var(--jira-border);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow-y: auto;
+  transition: width 0.2s ease, min-width 0.2s ease;
+}
+
+.project-sidebar.collapsed {
+  width: 0;
+  min-width: 0;
+  overflow: hidden;
+  border-right: none;
+}
+
+.proj-brand-block {
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--jira-border);
+}
+
+.back-to-hub-btn {
+  background: var(--cozy-primary-soft);
+  color: var(--cozy-primary);
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  margin-bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.back-to-hub-btn:hover {
+  background: var(--cozy-primary);
+  color: #ffffff;
+}
+
+.current-project-badge {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.proj-avatar-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--cozy-primary-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(124, 131, 253, 0.15);
+}
+
+.proj-meta-text {
+  overflow: hidden;
+}
+
+.sidebar-proj-title {
+  font-size: 14.5px;
+  font-weight: 700;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--text-main);
+}
+
+.sidebar-proj-sub {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.sidebar-nav {
+  padding: 16px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nav-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-faint);
+  letter-spacing: 0.05em;
+  padding: 6px 12px 2px;
+}
+
+.side-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  transition: all 0.15s ease;
+}
+
+.nav-emoji {
+  font-size: 16px;
+}
+
+.side-nav-item:hover {
+  background-color: var(--jira-column-bg);
+  color: var(--text-main);
+  transform: translateX(3px);
+}
+
+.side-nav-item.active {
+  background-color: var(--cozy-primary-soft);
+  color: var(--cozy-primary);
+  font-weight: 600;
+}
+
+/* 3. Main Workspace Canvas */
+.jira-main {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background-color: var(--jira-body-bg);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Common Workspace Top Navbar */
+.workspace-top-bar {
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--jira-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--jira-side-bg);
+  position: sticky;
+  top: 0;
+  z-index: 5;
+}
+
+.breadcrumbs {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 2px;
+}
+
+.workspace-title {
+  margin: 0;
+  font-size: 21px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.workspace-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Workspace Filter / Search Bar */
+.workspace-filter-bar {
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--jira-border);
+  background: var(--jira-side-bg);
+}
+
+.jira-search-input {
+  max-width: 260px;
+  padding: 8px 14px;
+  border: 1px solid var(--jira-border);
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  background: var(--jira-body-bg);
+  color: var(--text-main);
+  transition: all 0.2s ease;
+}
+
+.jira-search-input:focus {
+  outline: none;
+  border-color: var(--cozy-primary);
+  box-shadow: 0 0 0 3px var(--cozy-primary-soft);
+}
+
+/* ==========================================================================
+   VIEW A: Projects Directory (หน้ารวมโปรเจกต์)
+   ========================================================================== */
+
+.hub-container {
+  padding: 24px 28px 40px;
+  max-width: 1200px;
+}
+
+.hub-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 18px;
+  margin-top: 16px;
+}
+
+.hub-project-card {
+  background: var(--jira-card-bg);
+  border: 1px solid var(--jira-border);
+  border-radius: 18px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+  box-shadow: var(--card-shadow);
+  position: relative;
+  overflow: hidden;
+}
+
+.hub-project-card:hover {
+  border-color: var(--cozy-primary);
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-3px);
+}
+
+.hub-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.hub-card-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--cozy-primary-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  flex-shrink: 0;
+}
+
+.hub-card-title-group {
+  flex: 1;
+  min-width: 0;
+}
+
+.hub-card-title {
+  margin: 0;
+  font-size: 16.5px;
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.hub-card-key {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--cozy-primary);
+  background: var(--cozy-primary-soft);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  margin-top: 4px;
+}
+
+.hub-card-desc {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  line-height: 1.5;
+}
+
+.hub-card-stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px dashed var(--jira-border);
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   VIEW B: Jira Kanban Board View (บอร์ดการ์ดสไตล์มินิมอลละมุน)
+   ========================================================================== */
+
+.jira-board-canvas {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(200px, 1fr));
+  gap: 14px;
+  padding: 16px 20px 24px;
+  overflow-x: auto;
+  align-items: flex-start;
+  box-sizing: border-box;
+  width: 100%;
+}
+
+.jira-column {
+  min-width: 0;
+  width: 100%;
+  background-color: var(--jira-column-bg);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100vh - 145px);
+  padding: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  box-sizing: border-box;
+}
+
+.jira-column-header {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.jira-column-counter {
+  font-size: 11.5px;
+  font-weight: 700;
+  background: var(--jira-side-bg);
+  color: var(--cozy-primary);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.jira-card-list {
+  padding: 4px 6px 8px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 40px;
+}
+
+/* The Cute Card */
+.jira-card {
+  background: var(--jira-card-bg);
+  border: 1px solid var(--jira-border);
+  border-radius: var(--radius-card);
+  padding: 14px;
+  box-shadow: var(--card-shadow);
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  user-select: none;
+}
+
+.jira-card:active {
+  cursor: grabbing;
+}
+
+.jira-card:hover {
+  border-color: var(--cozy-primary);
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(-2px);
+}
+
+.jira-card.dragging {
+  opacity: 0.35;
+  transform: scale(0.97);
+  box-shadow: 0 10px 24px rgba(124, 131, 253, 0.28);
+  border: 2px dashed var(--cozy-primary);
+}
+
+.jira-card.drop-above {
+  border-top: 3px solid var(--cozy-primary) !important;
+  margin-top: 4px;
+}
+
+.jira-card.drop-below {
+  border-bottom: 3px solid var(--cozy-primary) !important;
+  margin-bottom: 4px;
+}
+
+.jira-card-list.column-drag-over {
+  background: rgba(124, 131, 253, 0.08);
+  border-radius: 12px;
+  outline: 2px dashed var(--cozy-primary);
+  outline-offset: -2px;
+}
+
+.drag-grip {
+  color: var(--text-faint);
+  font-size: 13px;
+  cursor: grab;
+  margin-right: 2px;
+  opacity: 0.6;
+  letter-spacing: -1px;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.jira-card:hover .drag-grip {
+  opacity: 1;
+  color: var(--cozy-primary);
+}
+
+.jira-card-tags {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.phase-tag {
+  font-size: 10.5px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.02em;
+}
+
+.jira-card-title {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-main);
+  margin: 0;
+  line-height: 1.45;
+  word-break: break-word;
+}
+
+.jira-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 12px;
+}
+
+.card-left-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.type-indicator {
+  font-size: 13px;
+}
+
+.card-assignee-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--cozy-primary-soft);
+  color: var(--cozy-primary);
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(124, 131, 253, 0.2);
+}
+
+.quick-add-task-btn {
+  margin: 4px 6px 6px;
+  padding: 8px 12px;
+  border: 1px dashed var(--jira-border);
+  background: var(--jira-side-bg);
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.15s ease;
+}
+
+.quick-add-task-btn:hover {
+  border-color: var(--cozy-primary);
+  color: var(--cozy-primary);
+  background: var(--cozy-primary-soft);
+}
+
+/* ==========================================================================
+   VIEW C: Stage Timeline (ไทม์ไลน์คลีนๆ ปรับวันได้ทันที)
+   ========================================================================= */
+
+.jira-timeline-canvas {
+  padding: 20px 28px 40px;
+  flex: 1;
+  overflow-x: auto;
+}
+
+.timeline-table-card {
+  background: var(--jira-card-bg);
+  border: 1px solid var(--jira-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--card-shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Timeline Toolbar */
+.timeline-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 12px 18px;
+  background: var(--jira-column-bg);
+  border-bottom: 1px solid var(--jira-border);
+}
+
+.timeline-legend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.milestone-legend-tag {
+  color: #E53E3E;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.timeline-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gantt-scroll-nav,
+.gantt-zoom-group {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--jira-card-bg);
+  padding: 3px 6px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--jira-border);
+}
+
+.gantt-zoom-group .btn.active {
+  background: var(--cozy-primary-soft);
+  color: var(--cozy-primary);
+  font-weight: 700;
+}
+
+/* Dual Split Container */
+.gantt-split-container {
+  display: flex;
+  position: relative;
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Left Task Table Pane */
+.gantt-left-pane {
+  width: 570px;
+  min-width: 570px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--jira-border);
+  background: var(--jira-card-bg);
+  z-index: 5;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.03);
+  position: sticky;
+  left: 0;
+}
+
+.gantt-left-header {
+  display: grid;
+  grid-template-columns: 1fr 90px 128px 128px;
+  gap: 8px;
+  height: 64px;
+  align-items: center;
+  padding: 0 14px;
+  background: var(--jira-column-bg);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--jira-border);
+  box-sizing: border-box;
+}
+
+.gantt-left-row {
+  display: grid;
+  grid-template-columns: 1fr 90px 128px 128px;
+  gap: 8px;
+  height: 48px;
+  align-items: center;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--jira-border);
+  box-sizing: border-box;
+  transition: background-color 0.15s ease;
+}
+
+.gantt-left-row:last-child {
+  border-bottom: none;
+}
+
+.gantt-left-row:hover {
+  background: var(--jira-column-bg);
+}
+
+.task-cell-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.task-title-text {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.task-title-text:hover {
+  color: var(--cozy-primary);
+}
+
+.owner-pill {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--cozy-primary-soft);
+  color: var(--cozy-primary);
+  white-space: nowrap;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 85px;
+}
+
+.phase-date-input {
+  font-family: inherit;
+  font-size: 11.5px;
+  padding: 5px 8px;
+  border: 1px solid var(--jira-border);
+  border-radius: var(--radius-pill);
+  background: var(--jira-body-bg);
+  color: var(--text-main);
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.15s ease;
+}
+
+.phase-date-input:focus {
+  border-color: var(--cozy-primary);
+  outline: none;
+}
+
+/* Right Scrollable Gantt Pane */
+.gantt-right-pane {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: var(--jira-card-bg);
+  position: relative;
+  scrollbar-width: thin;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gantt-right-pane::-webkit-scrollbar {
+  height: 9px;
+}
+.gantt-right-pane::-webkit-scrollbar-track {
+  background: var(--jira-column-bg);
+}
+.gantt-right-pane::-webkit-scrollbar-thumb {
+  background: var(--jira-border);
+  border-radius: 999px;
+}
+.gantt-right-pane::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+.gantt-chart-inner {
+  position: relative;
+  box-sizing: border-box;
+}
+
+/* Header: Month Tier + Day Tier */
+.gantt-chart-header {
+  height: 64px;
+  background: var(--jira-column-bg);
+  border-bottom: 1px solid var(--jira-border);
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.gantt-month-track {
+  display: flex;
+  height: 32px;
+  border-bottom: 1px solid var(--jira-border);
+  box-sizing: border-box;
+}
+
+.gantt-month-block {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 0 10px;
+  border-right: 1px solid var(--jira-border);
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.015);
+}
+
+.gantt-month-badge {
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--text-main);
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+
+.gantt-day-track {
+  display: flex;
+  height: 32px;
+  box-sizing: border-box;
+}
+
+.gantt-day-header-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-right: 1px solid rgba(0, 0, 0, 0.05);
+  font-size: 10.5px;
+  line-height: 1.1;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  color: var(--text-muted);
+}
+
+.gantt-day-header-cell.weekend {
+  background: rgba(0, 0, 0, 0.035);
+  color: var(--text-faint);
+}
+
+.gantt-day-header-cell.today {
+  background: rgba(124, 131, 253, 0.12);
+  color: var(--cozy-primary);
+  font-weight: 700;
+}
+
+.gantt-day-header-cell .d-num {
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.gantt-day-header-cell .d-dow {
+  font-size: 9.5px;
+  text-transform: uppercase;
+}
+
+/* Body */
+.gantt-chart-body {
+  position: relative;
+}
+
+.gantt-bg-grid {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  pointer-events: none;
+}
+
+.gantt-grid-column {
+  border-right: 1px solid rgba(0, 0, 0, 0.04);
+  box-sizing: border-box;
+  flex-shrink: 0;
+  height: 100%;
+}
+
+.gantt-grid-column.weekend {
+  background: rgba(0, 0, 0, 0.025);
+}
+
+.gantt-grid-column.today {
+  background: rgba(124, 131, 253, 0.06);
+  border-right: 1px solid rgba(124, 131, 253, 0.3);
+}
+
+/* Tracks layer */
+.gantt-tracks-layer {
+  position: relative;
+  z-index: 2;
+}
+
+.gantt-track-row {
+  height: 48px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid var(--jira-border);
+  box-sizing: border-box;
+}
+
+.gantt-track-row:last-child {
+  border-bottom: none;
+}
+
+.gantt-bar-item {
+  position: absolute;
+  height: 28px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 11.5px;
+  font-weight: 600;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.gantt-bar-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
+}
+
+.gantt-bar-item.milestone-diamond {
+  width: 18px !important;
+  height: 18px !important;
+  border-radius: 4px;
+  transform: rotate(45deg);
+  padding: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  cursor: pointer;
+}
+
+.gantt-bar-item.milestone-diamond:hover {
+  transform: rotate(45deg) scale(1.15);
+}
+
+.gantt-bar-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ==========================================================================
+   VIEW D: Phases Detail List
+   ========================================================================== */
+
+.phases-detail-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.phase-detail-card {
+  background: var(--jira-card-bg);
+  border: 1px solid var(--jira-border);
+  border-radius: 16px;
+  padding: 20px;
+  border-left: 6px solid var(--cozy-primary);
+  box-shadow: var(--card-shadow);
+  transition: transform 0.15s ease;
+}
+
+.phase-detail-card:hover {
+  transform: translateX(3px);
+}
+
+.phase-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.phase-card-title {
+  margin: 0;
+  font-size: 16.5px;
+  font-weight: 700;
+}
+
+.phase-card-dates {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.phase-card-goal {
+  margin: 10px 0 0;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* ==========================================================================
+   Buttons & Form Controls (Cute & Minimalist)
+   ========================================================================== */
+
+.btn {
+  font-family: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-btn);
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.18s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.btn-primary {
+  background: var(--cozy-primary);
+  color: #ffffff;
+  box-shadow: 0 4px 10px rgba(124, 131, 253, 0.3);
+}
+
+.btn-primary:hover {
+  background: var(--cozy-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(124, 131, 253, 0.4);
+}
+
+.btn-secondary {
+  background: var(--cozy-primary-soft);
+  color: var(--cozy-primary);
+}
+
+.btn-secondary:hover {
+  background: #dfe3fd;
+  color: var(--cozy-primary-hover);
+}
+
+.btn-danger {
+  background: #FF6B6B;
+  color: #ffffff;
+}
+
+.btn-danger:hover {
+  background: #FA5252;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-muted);
+}
+
+.btn-ghost:hover {
+  background: var(--jira-column-bg);
+  color: var(--text-main);
+}
+
+/* ==========================================================================
+   Dialogs / Modals (Rounded, Soft Shadow)
+   ========================================================================== */
+
+dialog.jira-dialog {
+  border: 1px solid var(--jira-border);
+  border-radius: 20px;
+  background: var(--jira-card-bg);
+  color: var(--text-main);
+  padding: 0;
+  width: min(530px, 94vw);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+}
+
+dialog.jira-dialog.jira-dialog-lg {
+  width: min(680px, 94vw);
+}
+
+dialog:modal {
+  /* MANDATORY: Prevent scroll gestures inside modal from chaining to page */
+  overscroll-behavior: contain;
+}
+
+dialog::backdrop {
+  /* MANDATORY: make ::backdrop a scroll container */
+  overflow: hidden;
+  overscroll-behavior: contain;
+  background: rgba(30, 35, 55, 0.4);
+  backdrop-filter: blur(4px);
+}
+
+.jira-modal-head {
+  padding: 18px 22px;
+  border-bottom: 1px solid var(--jira-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.jira-modal-head h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.issue-head-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.type-pill-select {
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--cozy-primary-soft);
+  color: var(--cozy-primary);
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+}
+
+.icon-close-btn {
+  background: var(--jira-column-bg);
+  border: none;
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.icon-close-btn:hover {
+  background: var(--jira-border);
+  color: var(--text-main);
+}
+
+.jira-modal-body {
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: 75vh;
+  overflow-y: auto;
+}
+
+.jira-modal-foot {
+  padding: 16px 22px;
+  background: var(--jira-column-bg);
+  border-top: 1px solid var(--jira-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+input[type="text"], input[type="date"], select, textarea {
+  font-family: inherit;
+  font-size: 13.5px;
+  padding: 9px 12px;
+  border: 1px solid var(--jira-border);
+  border-radius: 10px;
+  background: var(--jira-body-bg);
+  color: var(--text-main);
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--cozy-primary);
+  box-shadow: 0 0 0 3px var(--cozy-primary-soft);
+}
+
+.req {
+  color: #FF6B6B;
+}
+
+.error-msg {
+  display: none;
+  color: #FF6B6B;
+  font-size: 12px;
+}
+
+input:user-invalid + .error-msg,
+.user-invalid-fallback + .error-msg {
+  display: block;
+}
+
+/* Toast */
+.jira-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  transform: translate(-50%, 20px);
+  background: var(--cozy-primary);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+  z-index: 1000;
+  box-shadow: 0 6px 16px rgba(124, 131, 253, 0.4);
+}
+
+.jira-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ==========================================================================
+   Responsive Mobile & Tablet Design
+   ========================================================================== */
+
+.mobile-menu-btn {
+  display: none;
+  background: var(--jira-column-bg);
+  border: 1px solid var(--jira-border);
+  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  font-size: 19px;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.mobile-menu-btn:hover {
+  background: var(--cozy-primary-soft);
+  color: var(--cozy-primary);
+}
+
+.sidebar-backdrop {
+  display: none;
+}
+
+/* Tablet adjustments (<= 1100px) */
+@media (max-width: 1100px) {
+  .project-sidebar {
+    width: 200px;
+    min-width: 200px;
+  }
+  .jira-board-canvas {
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
+    gap: 10px;
+    padding: 12px 14px 20px;
+  }
+}
+
+/* Mobile & Tablet Drawer (<= 860px) */
+@media (max-width: 860px) {
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+
+  .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(3px);
+    z-index: 98;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .jira-layout.mobile-sidebar-open .sidebar-backdrop {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Sidebars slide in from the left as an overlay drawer */
+  .global-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 100;
+    transform: translateX(-100%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+  }
+
+  .project-sidebar {
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 62px;
+    z-index: 99;
+    transform: translateX(-150%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+    width: 260px;
+    min-width: 260px;
+  }
+
+  .jira-layout.mobile-sidebar-open .global-sidebar,
+  .jira-layout.mobile-sidebar-open .project-sidebar {
+    transform: translateX(0);
+  }
+
+  /* Main workspace expands to 100vw on mobile */
+  .jira-main {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  /* Top bar wraps neatly */
+  .workspace-top-bar {
+    padding: 12px 16px;
+    gap: 10px;
+  }
+
+  .workspace-title {
+    font-size: 18px;
+  }
+
+  .workspace-actions {
+    width: 100%;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .workspace-actions .btn {
+    flex: 1 1 auto;
+    justify-content: center;
+    min-height: 40px;
+  }
+
+  /* Filter bar */
+  .workspace-filter-bar {
+    padding: 10px 16px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .jira-search-input,
+  #boardPhaseFilterSelect {
+    max-width: 100% !important;
+    width: 100% !important;
+    min-height: 40px;
+  }
+
+  /* Kanban Board on Mobile: native swipe feel with scroll-snap */
+  .jira-board-canvas {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 16px 24px;
+    gap: 12px;
+  }
+
+  .jira-column {
+    min-width: 82vw;
+    max-width: 330px;
+    width: 82vw;
+    flex-shrink: 0;
+    scroll-snap-align: center;
+    max-height: calc(100vh - 190px);
+  }
+
+  /* Timeline Table on Mobile: horizontal scroll */
+  .jira-timeline-canvas {
+    padding: 14px 16px 30px;
+  }
+
+  .gantt-split-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .gantt-left-pane {
+    position: static;
+    width: 530px;
+    min-width: 530px;
+  }
+
+  .gantt-left-header,
+  .gantt-left-row {
+    grid-template-columns: 1fr 80px 135px 135px;
+    gap: 6px;
+    padding: 0 10px;
+  }
+
+  /* Hub grid on mobile */
+  .hub-container {
+    padding: 16px 16px 30px;
+  }
+
+  .hub-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Dialogs / Modals on Mobile */
+  .jira-dialog {
+    width: 94vw !important;
+    max-width: 94vw !important;
+    margin: auto;
+    border-radius: 16px;
+  }
+
+  .jira-modal-body {
+    padding: 16px;
+    max-height: 75vh;
+  }
+
+  .field-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Prevent iOS zoom on input focus */
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-sidebar {
+    left: 0;
+    width: 88vw;
+    min-width: 88vw;
+  }
+
+  .jira-column {
+    min-width: 86vw;
+    width: 86vw;
+  }
+}
