@@ -837,8 +837,8 @@ body {
 
 /* Left Task Table Pane */
 .gantt-left-pane {
-  width: 570px;
-  min-width: 570px;
+  width: 590px;
+  min-width: 590px;
   flex-shrink: 0;
   border-right: 1px solid var(--jira-border);
   background: var(--jira-card-bg);
@@ -888,6 +888,48 @@ body {
   align-items: center;
   gap: 8px;
   min-width: 0;
+}
+
+.timeline-todo-check {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1.8px solid #94A3B8;
+  background: var(--jira-body-bg);
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.timeline-todo-check:hover {
+  border-color: var(--cozy-primary);
+  background: var(--cozy-primary-soft);
+  transform: scale(1.1);
+}
+
+.timeline-todo-check.is-todo {
+  background: var(--cozy-primary);
+  border-color: var(--cozy-primary);
+}
+
+.timeline-todo-check.is-todo:hover {
+  background: var(--cozy-primary-hover);
+  border-color: var(--cozy-primary-hover);
+}
+
+.timeline-todo-check.is-active {
+  background: #F59E0B;
+  border-color: #F59E0B;
+}
+
+.timeline-todo-check.is-done {
+  background: #10B981;
+  border-color: #10B981;
 }
 
 .task-title-text {
