@@ -1386,8 +1386,86 @@ dialog::backdrop {
   background: var(--jira-column-bg);
   border-top: 1px solid var(--jira-border);
   display: flex;
+  align-items: center;
   justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 10px;
+}
+
+.modal-foot-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-right: auto;
+  flex-wrap: wrap;
+}
+
+.modal-task-toggle {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--jira-border);
+  background: var(--jira-card-bg);
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.16s ease;
+}
+
+.modal-task-toggle:hover {
+  border-color: var(--cozy-primary);
+  background: var(--cozy-primary-soft);
+}
+
+.modal-task-toggle input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.modal-task-check {
+  width: 16px;
+  height: 16px;
+  border-radius: 5px;
+  border: 1.5px solid #94A3B8;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.16s ease;
+}
+
+.modal-task-toggle:has(input:checked) {
+  border-color: var(--cozy-primary);
+  background: var(--cozy-primary-soft);
+  color: var(--cozy-primary-text);
+}
+
+.modal-task-toggle input:checked + .modal-task-check {
+  background: var(--cozy-primary);
+  border-color: var(--cozy-primary);
+}
+
+.modal-task-toggle input:checked + .modal-task-check::after {
+  content: "";
+  width: 4px;
+  height: 8px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translate(-0.5px, -0.5px);
+}
+
+.modal-task-toggle.is-locked {
+  opacity: 0.85;
+  cursor: default;
 }
 
 .field {

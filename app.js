@@ -1055,6 +1055,11 @@ function openIssueModal(task = null, defaultStatus = 'todo') {
 function openPhaseModal(phase = null) {
   const form = $('phaseForm');
   form.reset();
+  const p = getActiveProject();
+  const taskToggle = $('phaseFormCreateTask');
+  const taskToggleWrap = taskToggle?.closest('.modal-task-toggle');
+  const taskToggleLabel = $('phaseFormCreateTaskLabel');
+
   if (phase) {
     $('phaseModalTitle').textContent = 'Edit Phase';
     $('phaseFormId').value = phase.id;
@@ -1065,8 +1070,28 @@ function openPhaseModal(phase = null) {
     $('phaseFormColor').value = phase.color || '#00818A';
     $('phaseFormGoal').value = phase.goal || '';
     $('deletePhaseBtn').style.display = 'inline-flex';
+
+    const linkedTask = p?.tasks?.find((t) => t.phaseId === phase.id);
+    if (taskToggle && taskToggleLabel && taskToggleWrap) {
+      taskToggle.checked = Boolean(linkedTask);
+      if (linkedTask && linkedTask.status !== 'todo') {
+        taskToggle.disabled = true;
+        taskToggleWrap.classList.add('is-locked');
+        const statusText = linkedTask.status === 'done'
+          ? 'Done'
+          : linkedTask.status === 'review'
+            ? 'Review'
+            : 'In Progress';
+        taskToggleLabel.textContent = `Task: ${statusText}`;
+        taskToggleWrap.title = `Already on Board (${statusText})`;
+      } else {
+        taskToggle.disabled = false;
+        taskToggleWrap.classList.remove('is-locked');
+        taskToggleLabel.textContent = 'To Do Task';
+        taskToggleWrap.title = 'Add or remove this phase as a To Do task on the Board';
+      }
+    }
   } else {
-    const p = getActiveProject();
     const nextNum = (p?.phases?.length || 0) + 1;
     $('phaseModalTitle').textContent = 'Add Phase';
     $('phaseFormId').value = '';
@@ -1077,6 +1102,14 @@ function openPhaseModal(phase = null) {
     $('phaseFormColor').value = '#00818A';
     $('phaseFormGoal').value = '';
     $('deletePhaseBtn').style.display = 'none';
+
+    if (taskToggle && taskToggleLabel && taskToggleWrap) {
+      taskToggle.checked = false;
+      taskToggle.disabled = false;
+      taskToggleWrap.classList.remove('is-locked');
+      taskToggleLabel.textContent = 'To Do Task';
+      taskToggleWrap.title = 'Add this phase as a To Do task on the Board';
+    }
   }
   $('phaseModal').showModal();
 }
@@ -1566,7 +1599,9 @@ function setupEventListeners() {
     const owner = ($('phaseFormOwner')?.value || '').trim();
     const color = $('phaseFormColor').value;
     const goal = $('phaseFormGoal').value.trim();
+    const createTodoTask = $('phaseFormCreateTask')?.checked;
 
+    let targetPhaseId = phaseId;
     if (phaseId) {
       const ph = p.phases.find((x) => x.id === phaseId);
       if (ph) {
@@ -1578,8 +1613,9 @@ function setupEventListeners() {
         ph.goal = goal;
       }
     } else {
+      targetPhaseId = uid('ph');
       p.phases.push({
-        id: uid('ph'),
+        id: targetPhaseId,
         name,
         start,
         end,
@@ -1589,10 +1625,42 @@ function setupEventListeners() {
       });
     }
 
+    const existingIdx = p.tasks.findIndex((t) => t.phaseId === targetPhaseId);
+    if (createTodoTask) {
+      if (existingIdx === -1) {
+        const maxNum = p.tasks.reduce((max, t) => {
+          const m = String(t.code || '').match(/-(\d+)$/);
+          return m ? Math.max(max, parseInt(m[1], 10)) : max;
+        }, 0);
+        p.tasks.push({
+          id: uid('task'),
+          code: `${p.key || 'PRJ'}-${maxNum + 1}`,
+          title: name,
+          type: 'task',
+          status: 'todo',
+          priority: 'high',
+          phaseId: targetPhaseId,
+          assignee: owner,
+          dueDate: end || start || '',
+          desc: goal
+        });
+      } else {
+        const linked = p.tasks[existingIdx];
+        if (linked && linked.status === 'todo') {
+          linked.title = name;
+          linked.assignee = owner;
+          linked.dueDate = end || start || '';
+          linked.desc = goal;
+        }
+      }
+    } else if (existingIdx !== -1 && p.tasks[existingIdx].status === 'todo') {
+      p.tasks.splice(existingIdx, 1);
+    }
+
     persistState();
     $('phaseModal').close();
     renderApp();
-    showToast('บันทึกสเตทไทม์ไลน์แล้ว 🌱');
+    showToast(createTodoTask && existingIdx === -1 ? 'บันทึกสเตทและสร้างการ์ด TO DO แล้ว 🌱📋' : 'บันทึกสเตทไทม์ไลน์แล้ว 🌱');
   });
 
   // Delete Phase Button
