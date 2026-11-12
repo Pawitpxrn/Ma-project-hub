@@ -154,6 +154,7 @@ body {
   gap: 14px;
   z-index: 10;
   box-shadow: 2px 0 10px rgba(0, 0, 0, 0.03);
+  transition: width 0.22s ease, min-width 0.22s ease, padding 0.22s ease, opacity 0.18s ease;
 }
 
 .jira-brand-icon {
@@ -220,19 +221,20 @@ body {
   flex-direction: column;
   height: 100%;
   overflow-y: auto;
-  transition: width 0.2s ease, min-width 0.2s ease;
-}
-
-.project-sidebar.collapsed {
-  width: 0;
-  min-width: 0;
-  overflow: hidden;
-  border-right: none;
+  transition: width 0.22s ease, min-width 0.22s ease, opacity 0.18s ease;
 }
 
 .proj-brand-block {
   padding: 20px 16px 16px;
   border-bottom: 1px solid var(--jira-border);
+}
+
+.proj-brand-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 14px;
 }
 
 .back-to-hub-btn {
@@ -244,16 +246,37 @@ body {
   padding: 6px 12px;
   border-radius: var(--radius-pill);
   cursor: pointer;
-  margin-bottom: 14px;
   display: inline-flex;
   align-items: center;
   gap: 4px;
   transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .back-to-hub-btn:hover {
   background: var(--cozy-primary);
   color: #ffffff;
+}
+
+.sidebar-collapse-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--jira-border);
+  background: var(--jira-card-bg);
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-collapse-btn:hover {
+  background: var(--cozy-primary-soft);
+  color: var(--cozy-primary);
+  border-color: var(--cozy-primary-soft);
 }
 
 .current-project-badge {
@@ -1400,17 +1423,17 @@ input:user-invalid + .error-msg,
    ========================================================================== */
 
 .mobile-menu-btn {
-  display: none;
+  display: inline-flex;
   background: var(--jira-column-bg);
   border: 1px solid var(--jira-border);
   border-radius: 10px;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   align-items: center;
   justify-content: center;
-  font-size: 19px;
+  font-size: 18px;
   cursor: pointer;
-  color: var(--text-main);
+  color: var(--text-muted);
   transition: all 0.15s ease;
   flex-shrink: 0;
 }
@@ -1418,6 +1441,34 @@ input:user-invalid + .error-msg,
 .mobile-menu-btn:hover {
   background: var(--cozy-primary-soft);
   color: var(--cozy-primary);
+  border-color: var(--cozy-primary-soft);
+}
+
+.jira-layout.sidebar-collapsed .mobile-menu-btn {
+  background: var(--cozy-primary-soft);
+  color: var(--cozy-primary);
+}
+
+/* Desktop Collapsible Sidebar */
+@media (min-width: 861px) {
+  .jira-layout.sidebar-collapsed .global-sidebar {
+    width: 0 !important;
+    min-width: 0 !important;
+    padding-left: 0;
+    padding-right: 0;
+    opacity: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .jira-layout.sidebar-collapsed .project-sidebar {
+    width: 0 !important;
+    min-width: 0 !important;
+    opacity: 0;
+    border-right: none;
+    overflow: hidden;
+    pointer-events: none;
+  }
 }
 
 .sidebar-backdrop {

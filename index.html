@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Mitr:wght@300;400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=2.9">
+  <link rel="stylesheet" href="./styles.css?v=3.0">
 </head>
 <body>
   <div class="jira-layout" id="appLayout">
@@ -27,14 +27,22 @@
       <button type="button" class="global-icon-btn new-proj-quick" id="quickNewProjBtn" title="+ สร้างโปรเจกต์ใหม่">
         +
       </button>
+      <button type="button" class="global-icon-btn sidebar-global-collapse" data-action="toggle-sidebar" title="หดแถบเมนูซ้าย" style="margin-top: auto;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
     </aside>
 
     <!-- Project Context Sidebar (Shows when a project is selected) -->
     <aside class="project-sidebar" id="projectSidebar" style="display: none;">
       <div class="proj-brand-block">
-        <button type="button" class="back-to-hub-btn" id="backToHubBtn" title="Back to All Projects">
-          ← All Projects
-        </button>
+        <div class="proj-brand-top-row">
+          <button type="button" class="back-to-hub-btn" id="backToHubBtn" title="Back to All Projects">
+            ← All Projects
+          </button>
+          <button type="button" class="sidebar-collapse-btn" data-action="toggle-sidebar" title="หดแถบเมนูซ้าย">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+          </button>
+        </div>
         <div class="current-project-badge">
           <div class="proj-avatar-icon" id="sidebarProjAvatar">🚗</div>
           <div class="proj-meta-text">
@@ -283,6 +291,6 @@
 
   <div id="toast" class="jira-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=2.9"></script>
+  <script src="./app.js?v=3.0"></script>
 </body>
 </html>

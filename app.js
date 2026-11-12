@@ -286,8 +286,11 @@ let appState = {
   activeSubView: 'timeline', // 'board' | 'timeline' | 'phases' | 'settings'
   searchQuery: '',
   selectedPhaseFilter: 'all',
+  sidebarCollapsed: false,
   projects: []
 };
+
+const SIDEBAR_TOGGLE_BTN = `<button type="button" class="mobile-menu-btn" data-action="toggle-sidebar" title="ซ่อน / แสดงแถบเมนูซ้าย" aria-label="Toggle Navigation Sidebar"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="3"/><line x1="9" y1="3" x2="9" y2="21"/></svg></button>`;
 
 const $ = (id) => document.getElementById(id);
 const uid = (prefix = 'id') => `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`;
@@ -307,7 +310,8 @@ function persistState() {
       projects: appState.projects,
       activeProjectId: appState.activeProjectId,
       currentView: appState.currentView,
-      activeSubView: appState.activeSubView
+      activeSubView: appState.activeSubView,
+      sidebarCollapsed: !!appState.sidebarCollapsed
     }));
   } catch (err) {
     console.warn('Persist failed', err);
@@ -325,6 +329,7 @@ function loadState() {
         appState.activeProjectId = parsed.activeProjectId || parsed.projects[0].id;
         appState.currentView = parsed.currentView || 'project';
         appState.activeSubView = parsed.activeSubView || 'timeline';
+        appState.sidebarCollapsed = !!parsed.sidebarCollapsed;
         loaded = true;
       }
     } catch { /* fallback */ }
@@ -391,6 +396,8 @@ function renderApp() {
   const projSidebar = $('projectSidebar');
   const allProjBtn = $('navAllProjectsBtn');
 
+  $('appLayout')?.classList.toggle('sidebar-collapsed', !!appState.sidebarCollapsed);
+
   if (appState.currentView === 'hub' || !p) {
     projSidebar.style.display = 'none';
     allProjBtn.classList.add('active');
@@ -431,7 +438,7 @@ function renderHubView() {
   container.innerHTML = `
     <div class="workspace-top-bar">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <button type="button" class="mobile-menu-btn" data-action="toggle-mobile-menu" aria-label="Open Navigation">☰</button>
+        ${SIDEBAR_TOGGLE_BTN}
         <div>
           <div class="breadcrumbs">Home / All Projects</div>
           <h1 class="workspace-title">Projects</h1>
@@ -501,7 +508,7 @@ function renderBoardView(p) {
   container.innerHTML = `
     <div class="workspace-top-bar">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <button type="button" class="mobile-menu-btn" data-action="toggle-mobile-menu" aria-label="Open Navigation">☰</button>
+        ${SIDEBAR_TOGGLE_BTN}
         <div>
           <div class="breadcrumbs">
             <span style="cursor:pointer;" data-action="go-hub">Projects</span> / <strong>${esc(p.name)}</strong>
@@ -681,7 +688,7 @@ function renderTimelineView(p) {
   container.innerHTML = `
     <div class="workspace-top-bar">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <button type="button" class="mobile-menu-btn" data-action="toggle-mobile-menu" aria-label="Open Navigation">☰</button>
+        ${SIDEBAR_TOGGLE_BTN}
         <div>
           <div class="breadcrumbs">
             <span style="cursor:pointer;" data-action="go-hub">Projects</span> / <strong>${esc(p.name)}</strong>
@@ -869,7 +876,7 @@ function renderPhasesView(p) {
   container.innerHTML = `
     <div class="workspace-top-bar">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <button type="button" class="mobile-menu-btn" data-action="toggle-mobile-menu" aria-label="Open Navigation">☰</button>
+        ${SIDEBAR_TOGGLE_BTN}
         <div>
           <div class="breadcrumbs">
             <span style="cursor:pointer;" data-action="go-hub">Projects</span> / <strong>${esc(p.name)}</strong>
@@ -923,7 +930,7 @@ function renderSettingsView(p) {
   container.innerHTML = `
     <div class="workspace-top-bar">
       <div style="display: flex; align-items: center; gap: 12px;">
-        <button type="button" class="mobile-menu-btn" data-action="toggle-mobile-menu" aria-label="Open Navigation">☰</button>
+        ${SIDEBAR_TOGGLE_BTN}
         <div>
           <div class="breadcrumbs">
             <span style="cursor:pointer;" data-action="go-hub">Projects</span> / <strong>${esc(p.name)}</strong>
@@ -1243,8 +1250,14 @@ function setupEventListeners() {
     if (!actionBtn) return;
     const action = actionBtn.dataset.action;
 
-    if (action === 'toggle-mobile-menu') {
-      $('appLayout')?.classList.toggle('mobile-sidebar-open');
+    if (action === 'toggle-mobile-menu' || action === 'toggle-sidebar') {
+      if (window.innerWidth <= 860) {
+        $('appLayout')?.classList.toggle('mobile-sidebar-open');
+      } else {
+        appState.sidebarCollapsed = !appState.sidebarCollapsed;
+        $('appLayout')?.classList.toggle('sidebar-collapsed', appState.sidebarCollapsed);
+        persistState();
+      }
       return;
     } else if (action === 'close-mobile-menu') {
       closeMobileSidebar();
