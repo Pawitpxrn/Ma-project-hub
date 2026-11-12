@@ -729,6 +729,20 @@ body {
   border: 1px solid rgba(124, 131, 253, 0.2);
 }
 
+.card-assignee-pill {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  background: var(--cozy-primary-soft);
+  color: var(--cozy-primary-text);
+  border: 1px solid rgba(99, 102, 241, 0.22);
+  max-width: 112px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .quick-add-task-btn {
   margin: 4px 6px 6px;
   padding: 8px 12px;
@@ -837,8 +851,8 @@ body {
 
 /* Left Task Table Pane */
 .gantt-left-pane {
-  width: 590px;
-  min-width: 590px;
+  width: 604px;
+  min-width: 604px;
   flex-shrink: 0;
   border-right: 1px solid var(--jira-border);
   background: var(--jira-card-bg);
@@ -850,7 +864,7 @@ body {
 
 .gantt-left-header {
   display: grid;
-  grid-template-columns: 1fr 90px 128px 128px;
+  grid-template-columns: minmax(180px, 1fr) 114px 122px 122px;
   gap: 8px;
   height: 64px;
   align-items: center;
@@ -865,7 +879,7 @@ body {
 
 .gantt-left-row {
   display: grid;
-  grid-template-columns: 1fr 90px 128px 128px;
+  grid-template-columns: minmax(180px, 1fr) 114px 122px 122px;
   gap: 8px;
   height: 48px;
   align-items: center;
@@ -888,48 +902,6 @@ body {
   align-items: center;
   gap: 8px;
   min-width: 0;
-}
-
-.timeline-todo-check {
-  width: 18px;
-  height: 18px;
-  border-radius: 6px;
-  border: 1.8px solid #94A3B8;
-  background: var(--jira-body-bg);
-  color: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.15s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-.timeline-todo-check:hover {
-  border-color: var(--cozy-primary);
-  background: var(--cozy-primary-soft);
-  transform: scale(1.1);
-}
-
-.timeline-todo-check.is-todo {
-  background: var(--cozy-primary);
-  border-color: var(--cozy-primary);
-}
-
-.timeline-todo-check.is-todo:hover {
-  background: var(--cozy-primary-hover);
-  border-color: var(--cozy-primary-hover);
-}
-
-.timeline-todo-check.is-active {
-  background: #F59E0B;
-  border-color: #F59E0B;
-}
-
-.timeline-todo-check.is-done {
-  background: #10B981;
-  border-color: #10B981;
 }
 
 .task-title-text {
@@ -957,7 +929,7 @@ body {
   display: inline-block;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 85px;
+  max-width: 100%;
 }
 
 .phase-date-input {
@@ -1741,13 +1713,13 @@ input:user-invalid + .error-msg,
 
   .gantt-left-pane {
     position: static;
-    width: 530px;
-    min-width: 530px;
+    width: 540px;
+    min-width: 540px;
   }
 
   .gantt-left-header,
   .gantt-left-row {
-    grid-template-columns: 1fr 80px 135px 135px;
+    grid-template-columns: 1fr 104px 126px 126px;
     gap: 6px;
     padding: 0 10px;
   }

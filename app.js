@@ -548,7 +548,7 @@ function renderBoardView(p) {
             ${col.items.map((t) => {
               const phase = p.phases.find((ph) => ph.id === t.phaseId);
               const typeMeta = TYPE_CONFIG[t.type] || TYPE_CONFIG.task;
-              const assigneeInitial = (t.assignee || 'P').trim().charAt(0).toUpperCase();
+              const ownerLabel = (t.assignee || '').trim();
 
               return `
                 <div class="jira-card" draggable="true" data-action="edit-issue" data-id="${esc(t.id)}" data-status="${col.key}">
@@ -569,9 +569,13 @@ function renderBoardView(p) {
                       <span title="Priority">${PRIORITY_ICONS[t.priority] || '🟡'}</span>
                       <span style="font-weight: 700; color: var(--cozy-primary);">${esc(t.code || 'RECON-0')}</span>
                     </div>
-                    <div class="card-assignee-avatar" title="${esc(t.assignee || 'Unassigned')}">
-                      ${assigneeInitial}
-                    </div>
+                    ${ownerLabel ? `
+                      <span class="card-assignee-pill" title="Owner: ${esc(ownerLabel)}">
+                        👤 ${esc(ownerLabel)}
+                      </span>
+                    ` : `
+                      <div class="card-assignee-avatar" title="Unassigned">?</div>
+                    `}
                   </div>
                 </div>
               `;
@@ -744,30 +748,9 @@ function renderTimelineView(p) {
                 </div>
               ` : p.phases.map((ph) => {
                 const isMilestone = ph.start && ph.end && ph.start === ph.end;
-                const linkedTask = p.tasks.find((t) => t.phaseId === ph.id);
-                const status = linkedTask?.status || null;
-                const checkSvg = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
-
-                let checkClass = '';
-                let checkTitle = 'ติ๊กเพื่อแปลงเป็นงาน To Do บน Board';
-                let checkIcon = '';
-
-                if (status === 'todo') {
-                  checkClass = 'is-todo';
-                  checkTitle = 'อยู่ในบอร์ด TO DO แล้ว (คลิกเพื่อนำออกจาก TO DO)';
-                  checkIcon = checkSvg;
-                } else if (status) {
-                  checkClass = status === 'done' ? 'is-done' : 'is-active';
-                  checkTitle = `อยู่บน Board แล้ว (${status.toUpperCase()}) — คลิกเพื่อดูการ์ด`;
-                  checkIcon = checkSvg;
-                }
-
                 return `
                   <div class="gantt-left-row">
                     <div class="task-cell-inner" data-action="edit-phase" data-id="${esc(ph.id)}" style="cursor: pointer;" title="Click to edit: ${esc(ph.name)}">
-                      <button type="button" class="timeline-todo-check ${checkClass}" data-action="toggle-timeline-todo" data-id="${esc(ph.id)}" title="${esc(checkTitle)}" aria-label="${esc(checkTitle)}">
-                        ${checkIcon}
-                      </button>
                       <span class="phase-color-dot" style="background: ${ph.color || '#7C83FD'};"></span>
                       <span class="task-title-text">
                         ${isMilestone ? '◆ ' : ''}${esc(ph.name)}
@@ -930,7 +913,8 @@ function renderPhasesView(p) {
               </div>
               <p class="phase-card-goal">🎯 <strong>Goal:</strong> ${esc(ph.goal || 'No specific goal specified')}</p>
               
-              <div style="margin-top: 14px; font-size: 13px; color: var(--text-muted); display: flex; gap: 16px;">
+              <div style="margin-top: 14px; font-size: 13px; color: var(--text-muted); display: flex; gap: 16px; flex-wrap: wrap;">
+                <span>👤 Owner: <strong>${esc(ph.owner || '—')}</strong></span>
                 <span>Total Tasks: <strong>${tasksInPhase.length}</strong></span>
                 <span>Completed: <strong>${doneCount}</strong></span>
               </div>
@@ -1347,43 +1331,6 @@ function setupEventListeners() {
       const p = getActiveProject();
       const phase = p?.phases.find((ph) => ph.id === actionBtn.dataset.id);
       if (phase) openPhaseModal(phase);
-    } else if (action === 'toggle-timeline-todo') {
-      const p = getActiveProject();
-      const ph = p?.phases.find((x) => x.id === actionBtn.dataset.id);
-      if (!p || !ph) return;
-
-      const existingIdx = p.tasks.findIndex((t) => t.phaseId === ph.id);
-      if (existingIdx !== -1) {
-        const existingTask = p.tasks[existingIdx];
-        if (existingTask.status === 'todo') {
-          p.tasks.splice(existingIdx, 1);
-          persistState();
-          renderTimelineView(p);
-          showToast(`นำ "${ph.name}" ออกจาก Board (TO DO) แล้ว`);
-        } else {
-          openIssueModal(existingTask);
-        }
-      } else {
-        const maxNum = p.tasks.reduce((max, t) => {
-          const m = String(t.code || '').match(/-(\d+)$/);
-          return m ? Math.max(max, parseInt(m[1], 10)) : max;
-        }, 0);
-        p.tasks.push({
-          id: uid('task'),
-          code: `${p.key || 'PRJ'}-${maxNum + 1}`,
-          title: ph.name,
-          type: 'task',
-          status: 'todo',
-          priority: 'high',
-          phaseId: ph.id,
-          assignee: ph.owner || '',
-          dueDate: ph.end || ph.start || '',
-          desc: ph.goal || ''
-        });
-        persistState();
-        renderTimelineView(p);
-        showToast(`แปลง "${ph.name}" เป็นการ์ด TO DO บน Board แล้ว 📋✨`);
-      }
     } else if (action === 'scroll-gantt') {
       const pane = $('ganttScrollContainer');
       if (pane) {
