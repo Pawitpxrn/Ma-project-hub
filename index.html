@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=3.5">
+  <link rel="stylesheet" href="./styles.css?v=3.6">
 </head>
 <body>
   <div class="jira-layout" id="appLayout">
@@ -54,6 +54,7 @@
             <span class="sidebar-proj-sub" id="sidebarProjKey">PROJ</span>
           </div>
         </div>
+        <div class="sidebar-golive-box" id="sidebarProjGoLive" style="display: none;"></div>
       </div>
 
       <nav class="sidebar-nav">
@@ -103,11 +104,11 @@
         <div class="field-row">
           <div class="field">
             <label for="pFormKey">Key</label>
-            <input type="text" id="pFormKey" maxlength="6" placeholder="e.g. BKG, RECON">
+            <input type="text" id="pFormKey" name="projectKey" maxlength="6" autocorrect="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. BKG, RECON">
           </div>
           <div class="field">
             <label for="pFormIcon">Icon</label>
-            <select id="pFormIcon">
+            <select id="pFormIcon" name="projectIcon">
               <option value="🚗" selected>🚗 Automotive</option>
               <option value="🚘">🚘 Vehicle / Car</option>
               <option value="🛞">🛞 Tire & Wheels</option>
@@ -121,9 +122,19 @@
             </select>
           </div>
         </div>
+        <div class="field-row">
+          <div class="field">
+            <label for="pFormGoLive">Go-Live / Due Date</label>
+            <input type="date" id="pFormGoLive" name="projectGoLive">
+          </div>
+          <div class="field">
+            <label for="pFormRemark">Go-Live Remark / Note</label>
+            <input type="text" id="pFormRemark" name="projectRemark" placeholder="e.g. Official Production Launch">
+          </div>
+        </div>
         <div class="field">
           <label for="pFormDesc">Description</label>
-          <textarea id="pFormDesc" rows="2" placeholder="Brief project summary or goals"></textarea>
+          <textarea id="pFormDesc" name="projectDesc" rows="2" placeholder="Brief project summary or goals"></textarea>
         </div>
       </div>
       <div class="jira-modal-foot">
@@ -357,6 +368,6 @@ create policy "Allow public workspace sync"
 
   <div id="toast" class="jira-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=3.5"></script>
+  <script src="./app.js?v=3.6"></script>
 </body>
 </html>

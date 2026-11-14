@@ -96,6 +96,8 @@ const AUTOSMART_RECON_PROJECT = {
   key: 'RECON',
   name: 'Autosmart Recondition',
   icon: '🚗',
+  goLiveDate: '2026-12-01',
+  remark: 'Go-Live ระบบ RECON อย่างเป็นทางการ (MSD & i24)',
   desc: 'แผนงานพัฒนาและ Go-Live ระบบ RECON (1 Nov – 1 Dec 2026) Baseline schedule โดยทีม MSD & i24',
   phases: [
     {
@@ -280,6 +282,8 @@ const DEFAULT_SAMPLE_STATE = {
       key: 'BKG',
       name: 'ระบบจองห้องประชุม Next-Gen',
       icon: '🌷',
+      goLiveDate: '2026-12-10',
+      remark: 'เปิดใช้งานระบบจองห้องประชุม + IoT',
       desc: 'ระบบจองห้องประชุมพร้อมเชื่อมต่อปฏิทิน Google และระบบแอร์ดิจิทัล',
       phases: [
         { id: 'ph_1', name: 'Phase 1: DB & Auth Engine', owner: 'Dev A', start: '2026-11-01', end: '2026-11-12', color: '#7C83FD', goal: 'วางโครงสร้าง Database และระบบสิทธิ์เข้าใช้งาน' },
@@ -319,6 +323,77 @@ function esc(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+const SHORT_MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function formatShortDate(dateStr, includeYear = true) {
+  if (!dateStr || typeof dateStr !== 'string') return '';
+  const parts = dateStr.split('-').map(Number);
+  if (parts.length !== 3 || parts.some(Number.isNaN)) return dateStr;
+  const [y, m, d] = parts;
+  const mLabel = SHORT_MONTHS[m - 1] || '';
+  const dLabel = String(d).padStart(2, '0');
+  return includeYear ? `${dLabel} ${mLabel} ${y}` : `${dLabel} ${mLabel}`;
+}
+
+function getProjectGoLiveMeta(p) {
+  if (!p) return null;
+  let rawDate = (p.goLiveDate || '').trim();
+
+  if (!rawDate && Array.isArray(p.phases) && p.phases.length > 0) {
+    const milestonePhase = p.phases.find((ph) => {
+      const n = (ph.name || '').toLowerCase();
+      return n.includes('go-live') || n.includes('golive') || n.includes('launch') || n.includes('milestone') || (ph.start && ph.start === ph.end);
+    });
+    if (milestonePhase) {
+      rawDate = milestonePhase.end || milestonePhase.start || '';
+    } else {
+      const dates = p.phases.map((ph) => ph.end || ph.start || '').filter(Boolean).sort();
+      rawDate = dates[dates.length - 1] || '';
+    }
+  }
+
+  if (!rawDate && Array.isArray(p.tasks) && p.tasks.length > 0) {
+    const taskDates = p.tasks.map((t) => t.dueDate || '').filter(Boolean).sort();
+    rawDate = taskDates[taskDates.length - 1] || '';
+  }
+
+  const remark = (p.remark || '').trim();
+  if (!rawDate && !remark) return null;
+
+  let countdownText = '';
+  if (rawDate) {
+    const [y, m, d] = rawDate.split('-').map(Number);
+    if (y && m && d) {
+      const target = new Date(y, m - 1, d);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const diffDays = Math.round((target - today) / 86400000);
+      if (diffDays > 0) countdownText = `อีก ${diffDays} วัน`;
+      else if (diffDays === 0) countdownText = 'วันนี้!';
+      else countdownText = `ผ่านมา ${Math.abs(diffDays)} วัน`;
+    }
+  }
+
+  return {
+    rawDate,
+    formattedDate: rawDate ? formatShortDate(rawDate, true) : '',
+    countdownText,
+    remark
+  };
+}
+
+function renderProjectGoLiveBanner(p) {
+  const meta = getProjectGoLiveMeta(p);
+  if (!meta) return '';
+  return `
+    <div class="project-golive-banner" data-action="switch-subview" data-subview="settings" title="คลิกเพื่อแก้ไขวัน Go-Live / Due Date และ Remark ในหน้า Settings">
+      ${meta.formattedDate ? `<span>🚀 Go-Live / Due: <strong>${esc(meta.formattedDate)}</strong></span>` : ''}
+      ${meta.countdownText ? `<span class="golive-countdown-pill">${esc(meta.countdownText)}</span>` : ''}
+      ${meta.remark ? `<span class="golive-remark-text">📌 ${esc(meta.remark)}</span>` : ''}
+    </div>
+  `;
 }
 
 function encodeBase64Utf8(obj) {
@@ -607,20 +682,21 @@ function loadState() {
     appState.projects = structuredClone(DEFAULT_SAMPLE_STATE.projects);
   }
 
-  // Ensure Autosmart Recondition is present and up to date
+  // Ensure Autosmart Recondition is present and backfill Go-Live metadata without overwriting user edits
   const reconIdx = appState.projects.findIndex((p) => p.id === 'proj_autosmart_recon' || p.key === 'RECON' || (p.name && p.name.includes('Autosmart')));
   if (reconIdx === -1) {
     appState.projects.unshift(structuredClone(AUTOSMART_RECON_PROJECT));
   } else {
-    // Update existing one with the latest plan
-    appState.projects[reconIdx] = structuredClone(AUTOSMART_RECON_PROJECT);
+    const existing = appState.projects[reconIdx];
+    if (!existing.goLiveDate) existing.goLiveDate = AUTOSMART_RECON_PROJECT.goLiveDate;
+    if (existing.remark === undefined) existing.remark = AUTOSMART_RECON_PROJECT.remark;
   }
 
-  appState.activeProjectId = 'proj_autosmart_recon';
-  appState.currentView = 'project';
-  appState.activeSubView = 'timeline';
+  if (!appState.activeProjectId || !appState.projects.some((p) => p.id === appState.activeProjectId)) {
+    appState.activeProjectId = 'proj_autosmart_recon';
+  }
 
-  persistState();
+  persistState(true);
 }
 
 function getActiveProject() {
@@ -666,6 +742,26 @@ function renderApp() {
   $('sidebarProjAvatar').textContent = p.icon || '🚗';
   $('sidebarProjTitle').textContent = p.name;
   $('sidebarProjKey').textContent = `${p.key || 'PROJ'} Workspace`;
+
+  const sideGoLive = $('sidebarProjGoLive');
+  if (sideGoLive) {
+    const meta = getProjectGoLiveMeta(p);
+    if (meta) {
+      sideGoLive.style.display = 'block';
+      sideGoLive.dataset.action = 'switch-subview';
+      sideGoLive.dataset.subview = 'settings';
+      sideGoLive.title = 'คลิกเพื่อแก้ไขวัน Go-Live / Due Date และ Remark';
+      sideGoLive.innerHTML = `
+        <div class="sidebar-golive-date">
+          <span>🚀 ${esc(meta.formattedDate || 'Go-Live Note')}</span>
+          ${meta.countdownText ? `<span class="sidebar-golive-countdown">${esc(meta.countdownText)}</span>` : ''}
+        </div>
+        ${meta.remark ? `<div class="sidebar-golive-note">📌 ${esc(meta.remark)}</div>` : ''}
+      `;
+    } else {
+      sideGoLive.style.display = 'none';
+    }
+  }
 
   // Update active sub-nav item
   document.querySelectorAll('.side-nav-item').forEach((item) => {
@@ -713,6 +809,7 @@ function renderHubView() {
           const totalTasks = p.tasks.length;
           const doneTasks = p.tasks.filter((t) => t.status === 'done').length;
           const activePhases = p.phases.length;
+          const goLive = getProjectGoLiveMeta(p);
           return `
             <div class="hub-project-card" data-action="open-project" data-id="${esc(p.id)}">
               <div class="hub-card-header">
@@ -723,6 +820,15 @@ function renderHubView() {
                 </div>
               </div>
               <p class="hub-card-desc">${esc(p.desc || 'No description provided')}</p>
+              ${goLive ? `
+                <div class="hub-golive-remark">
+                  <div>
+                    🚀 Go-Live / Due: <strong>${esc(goLive.formattedDate || 'TBD')}</strong>
+                    ${goLive.countdownText ? `<span class="golive-countdown-pill" style="margin-left: 4px;">${esc(goLive.countdownText)}</span>` : ''}
+                  </div>
+                  ${goLive.remark ? `<div>📌 ${esc(goLive.remark)}</div>` : ''}
+                </div>
+              ` : ''}
               <div class="hub-card-stats">
                 <span>🗓️ ${activePhases} Phases</span>
                 <span>✨ Done ${doneTasks}/${totalTasks}</span>
@@ -761,7 +867,7 @@ function renderBoardView(p) {
 
   container.innerHTML = `
     <div class="workspace-top-bar">
-      <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
         ${SIDEBAR_TOGGLE_BTN}
         <div>
           <div class="breadcrumbs">
@@ -769,6 +875,7 @@ function renderBoardView(p) {
           </div>
           <h1 class="workspace-title">Board</h1>
         </div>
+        ${renderProjectGoLiveBanner(p)}
       </div>
       <div class="workspace-actions">
         <button type="button" class="btn btn-secondary" data-action="switch-subview" data-subview="timeline">🗓️ Timeline</button>
@@ -822,6 +929,7 @@ function renderBoardView(p) {
                       <span class="type-indicator" title="${typeMeta.label}">${typeMeta.icon}</span>
                       <span title="Priority">${PRIORITY_ICONS[t.priority] || '🟡'}</span>
                       <span style="font-weight: 700; color: var(--cozy-primary);">${esc(t.code || 'RECON-0')}</span>
+                      ${t.dueDate ? `<span class="card-due-pill" title="Due Date: ${esc(t.dueDate)}">📅 ${esc(formatShortDate(t.dueDate, false))}</span>` : ''}
                     </div>
                     ${ownerLabel ? `
                       <span class="card-assignee-pill" title="Owner: ${esc(ownerLabel)}">
@@ -945,7 +1053,7 @@ function renderTimelineView(p) {
 
   container.innerHTML = `
     <div class="workspace-top-bar">
-      <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
         ${SIDEBAR_TOGGLE_BTN}
         <div>
           <div class="breadcrumbs">
@@ -953,6 +1061,7 @@ function renderTimelineView(p) {
           </div>
           <h1 class="workspace-title">Timeline</h1>
         </div>
+        ${renderProjectGoLiveBanner(p)}
       </div>
       <div class="workspace-actions">
         <button type="button" class="btn btn-secondary" data-action="switch-subview" data-subview="board">📋 Board</button>
@@ -1133,7 +1242,7 @@ function renderPhasesView(p) {
   const container = $('mainWorkspace');
   container.innerHTML = `
     <div class="workspace-top-bar">
-      <div style="display: flex; align-items: center; gap: 12px;">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
         ${SIDEBAR_TOGGLE_BTN}
         <div>
           <div class="breadcrumbs">
@@ -1141,6 +1250,7 @@ function renderPhasesView(p) {
           </div>
           <h1 class="workspace-title">Phases</h1>
         </div>
+        ${renderProjectGoLiveBanner(p)}
       </div>
       <div class="workspace-actions">
         <button type="button" class="btn btn-primary" data-action="new-phase">+ Add Phase</button>
@@ -1200,31 +1310,42 @@ function renderSettingsView(p) {
     </div>
 
     <div style="padding: 24px 28px; max-width: 600px;">
-      <form id="projectEditSettingsForm">
+      <form id="projectEditSettingsForm" aria-labelledby="settingsFormHeading">
+        <h2 id="settingsFormHeading" style="font-size: 16px; margin: 0 0 16px;">Project Details &amp; Go-Live Remark</h2>
         <div class="field" style="margin-bottom: 16px;">
-          <label>Project Name</label>
-          <input type="text" id="settingProjName" value="${esc(p.name)}" required>
+          <label for="settingProjName">Project Name <span class="req" aria-hidden="true">*</span></label>
+          <input type="text" id="settingProjName" name="settingProjName" value="${esc(p.name)}" required>
         </div>
         <div class="field-row" style="margin-bottom: 16px;">
           <div class="field" style="max-width: 140px;">
-            <label>Key</label>
-            <input type="text" id="settingProjKey" value="${esc(p.key || 'PROJ')}" maxlength="6">
+            <label for="settingProjKey">Key</label>
+            <input type="text" id="settingProjKey" name="settingProjKey" value="${esc(p.key || 'PROJ')}" maxlength="6" autocorrect="off" autocapitalize="characters" spellcheck="false">
           </div>
           <div class="field">
-            <label>Icon</label>
+            <label for="settingProjIcon">Icon</label>
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-              <input type="text" id="settingProjIcon" value="${esc(p.icon || '🚗')}" style="width: 50px; text-align: center; font-size: 18px; padding: 4px;">
+              <input type="text" id="settingProjIcon" name="settingProjIcon" value="${esc(p.icon || '🚗')}" style="width: 50px; text-align: center; font-size: 18px; padding: 4px;">
               <div style="display: flex; gap: 4px; flex-wrap: wrap;">
                 ${['🚗', '🚘', '🛞', '💻', '📱', '🚀', '✨', '🌷', '🌿', '☕'].map((ic) => `
-                  <button type="button" class="btn btn-ghost btn-sm" style="font-size: 15px; padding: 3px 7px; border: 1px solid var(--jira-border);" onclick="document.getElementById('settingProjIcon').value='${ic}'">${ic}</button>
+                  <button type="button" class="btn btn-ghost btn-sm" style="font-size: 15px; padding: 3px 7px; border: 1px solid var(--jira-border);" data-action="pick-setting-icon" data-icon="${ic}">${ic}</button>
                 `).join('')}
               </div>
             </div>
           </div>
         </div>
+        <div class="field-row" style="margin-bottom: 16px;">
+          <div class="field">
+            <label for="settingProjGoLive">🚀 Go-Live / Due Date</label>
+            <input type="date" id="settingProjGoLive" name="settingProjGoLive" value="${esc(p.goLiveDate || getProjectGoLiveMeta(p)?.rawDate || '')}">
+          </div>
+          <div class="field">
+            <label for="settingProjRemark">📌 Go-Live Remark / Note</label>
+            <input type="text" id="settingProjRemark" name="settingProjRemark" value="${esc(p.remark || '')}" placeholder="e.g. Official Production Launch">
+          </div>
+        </div>
         <div class="field" style="margin-bottom: 24px;">
-          <label>Description</label>
-          <textarea id="settingProjDesc" rows="3">${esc(p.desc || '')}</textarea>
+          <label for="settingProjDesc">Description</label>
+          <textarea id="settingProjDesc" name="settingProjDesc" rows="3">${esc(p.desc || '')}</textarea>
         </div>
 
         <button type="submit" class="btn btn-primary">Save Changes</button>
@@ -1248,11 +1369,15 @@ function openProjectModal(isEdit = false) {
     $('pFormName').value = p.name;
     $('pFormKey').value = p.key;
     $('pFormIcon').value = p.icon;
+    $('pFormGoLive').value = p.goLiveDate || getProjectGoLiveMeta(p)?.rawDate || '';
+    $('pFormRemark').value = p.remark || '';
     $('pFormDesc').value = p.desc;
   } else {
     $('projModalTitle').textContent = 'Create Project';
     $('pFormId').value = '';
     $('pFormKey').value = 'PRJ';
+    $('pFormGoLive').value = '';
+    $('pFormRemark').value = '';
   }
   $('projectModal').showModal();
 }
@@ -1568,6 +1693,11 @@ function setupEventListeners() {
       closeMobileSidebar();
       appState.activeSubView = actionBtn.dataset.subview;
       renderApp();
+    } else if (action === 'pick-setting-icon') {
+      const iconInput = $('settingProjIcon');
+      if (iconInput && actionBtn.dataset.icon) {
+        iconInput.value = actionBtn.dataset.icon;
+      }
     } else if (action === 'new-project') {
       openProjectModal(false);
     } else if (action === 'new-issue') {
@@ -1676,6 +1806,8 @@ function setupEventListeners() {
     const name = nameInput.value.trim();
     const key = ($('pFormKey').value.trim() || 'PRJ').toUpperCase();
     const icon = $('pFormIcon').value || '🚗';
+    const goLiveDate = $('pFormGoLive')?.value || '';
+    const remark = ($('pFormRemark')?.value || '').trim();
     const desc = $('pFormDesc').value.trim();
 
     if (editId) {
@@ -1684,6 +1816,8 @@ function setupEventListeners() {
         p.name = name;
         p.key = key;
         p.icon = icon;
+        p.goLiveDate = goLiveDate;
+        p.remark = remark;
         p.desc = desc;
       }
     } else {
@@ -1692,9 +1826,11 @@ function setupEventListeners() {
         name,
         key,
         icon,
+        goLiveDate,
+        remark,
         desc,
         phases: [
-          { id: uid('ph'), name: 'Phase 1: Discovery & Planning', start: new Date().toISOString().slice(0, 10), end: '', color: '#7C83FD', goal: 'สรุปขอบเขตงาน' }
+          { id: uid('ph'), name: 'Phase 1: Discovery & Planning', start: new Date().toISOString().slice(0, 10), end: goLiveDate || '', color: '#7C83FD', goal: 'สรุปขอบเขตงาน' }
         ],
         tasks: []
       };
@@ -1886,6 +2022,8 @@ function setupEventListeners() {
         p.name = $('settingProjName').value.trim() || p.name;
         p.key = ($('settingProjKey').value.trim() || 'PRJ').toUpperCase();
         p.icon = $('settingProjIcon').value.trim() || '🚗';
+        p.goLiveDate = $('settingProjGoLive')?.value || '';
+        p.remark = ($('settingProjRemark')?.value || '').trim();
         p.desc = $('settingProjDesc').value.trim();
         persistState();
         renderApp();
