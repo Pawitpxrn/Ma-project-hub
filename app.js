@@ -903,7 +903,7 @@ function renderBoardView(p) {
         ${phaseOptions}
       </select>
 
-      <div style="margin-left: auto; font-size: 12px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px;">
+      <div class="board-drag-hint" style="margin-left: auto; font-size: 12px; color: var(--text-muted); display: inline-flex; align-items: center; gap: 6px;">
         <span>🖐️</span>
         <span>Drag cards to reorder priority, or across columns to move status</span>
       </div>
