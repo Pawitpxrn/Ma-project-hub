@@ -76,8 +76,8 @@ const STORAGE_KEY = 'cuteflow_workspace_projects_v11';
 const CLOUD_CONFIG_KEY = 'cuteflow_cloud_sync_v1';
 const CLOUD_TABLE = 'cuteflow_workspaces';
 const DEFAULT_CLOUD_CONFIG = {
-  supabaseUrl: '',
-  supabaseAnonKey: '',
+  supabaseUrl: 'https://zyfisijevpytdidmyswc.supabase.co',
+  supabaseAnonKey: 'sb_publishable_QUjdAbtdmLwt-RvkmIjx5A_lgz0giqf',
   workspaceId: 'autosmart-recon-hub'
 };
 
@@ -405,7 +405,7 @@ function decodeBase64Utf8(encoded) {
 }
 
 function sanitizeSupabaseUrl(url) {
-  return String(url || '').trim().replace(/\/+$/, '');
+  return String(url || '').trim().replace(/\/+$/, '').replace(/\/rest\/v1$/i, '');
 }
 
 function getCloudConfig() {
