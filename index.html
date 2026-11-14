@@ -2,14 +2,20 @@
 <html lang="th">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#7C83FD">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="CuteFlow">
+  <link rel="manifest" href="./manifest.webmanifest">
   <!-- MANDATORY: Declare support for both light and dark themes -->
   <meta name="color-scheme" content="light dark">
   <title>CuteFlow — บอร์ดโปรเจกต์ & ไทม์ไลน์มินิมอล</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="./styles.css?v=3.7">
+  <link rel="stylesheet" href="./styles.css?v=3.8">
 </head>
 <body>
   <div class="jira-layout" id="appLayout">
@@ -85,6 +91,30 @@
 
     <!-- Mobile Drawer Backdrop -->
     <div class="sidebar-backdrop" id="sidebarBackdrop" data-action="close-mobile-menu"></div>
+
+    <!-- Mobile App Bottom Navigation Bar -->
+    <nav class="mobile-bottom-nav" id="mobileBottomNav" aria-label="เมนูแอปมือถือ">
+      <button type="button" class="mobile-nav-tab" data-action="go-hub">
+        <span class="mnav-icon">🏠</span>
+        <span class="mnav-label">Projects</span>
+      </button>
+      <button type="button" class="mobile-nav-tab" data-action="switch-subview" data-subview="board">
+        <span class="mnav-icon">📋</span>
+        <span class="mnav-label">Board</span>
+      </button>
+      <button type="button" class="mobile-nav-tab" data-action="switch-subview" data-subview="timeline">
+        <span class="mnav-icon">🗓️</span>
+        <span class="mnav-label">Timeline</span>
+      </button>
+      <button type="button" class="mobile-nav-tab" data-action="switch-subview" data-subview="phases">
+        <span class="mnav-icon">🌱</span>
+        <span class="mnav-label">Phases</span>
+      </button>
+      <button type="button" class="mobile-nav-tab" data-action="switch-subview" data-subview="settings">
+        <span class="mnav-icon">⚙️</span>
+        <span class="mnav-label">Settings</span>
+      </button>
+    </nav>
   </div>
 
   <!-- MODAL: Create / Edit Project -->
@@ -368,6 +398,6 @@ create policy "Allow public workspace sync"
 
   <div id="toast" class="jira-toast" role="status" aria-live="polite"></div>
 
-  <script src="./app.js?v=3.7"></script>
+  <script src="./app.js?v=3.8"></script>
 </body>
 </html>

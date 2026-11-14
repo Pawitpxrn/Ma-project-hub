@@ -728,7 +728,19 @@ function renderApp() {
 
   $('appLayout')?.classList.toggle('sidebar-collapsed', !!appState.sidebarCollapsed);
 
-  if (appState.currentView === 'hub' || !p) {
+  const isHub = appState.currentView === 'hub' || !p;
+  document.querySelectorAll('.mobile-nav-tab').forEach((tab) => {
+    const action = tab.dataset.action;
+    const subview = tab.dataset.subview;
+    if (action === 'go-hub') {
+      tab.classList.toggle('active', isHub);
+    } else if (action === 'switch-subview') {
+      tab.classList.toggle('active', !isHub && appState.activeSubView === subview);
+      tab.disabled = !p;
+    }
+  });
+
+  if (isHub) {
     projSidebar.style.display = 'none';
     allProjBtn.classList.add('active');
     renderHubView();
@@ -1691,6 +1703,9 @@ function setupEventListeners() {
       renderApp();
     } else if (action === 'switch-subview') {
       closeMobileSidebar();
+      if (appState.currentView === 'hub' && getActiveProject()) {
+        appState.currentView = 'project';
+      }
       appState.activeSubView = actionBtn.dataset.subview;
       renderApp();
     } else if (action === 'pick-setting-icon') {

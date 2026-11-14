@@ -1,0 +1,10 @@
+{
+  "name": "CuteFlow — Project Hub",
+  "short_name": "CuteFlow",
+  "description": "Project Board, Timeline & Go-Live Tracker",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F8F7FC",
+  "theme_color": "#7C83FD",
+  "orientation": "portrait-primary"
+}

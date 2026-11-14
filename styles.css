@@ -1783,6 +1783,10 @@ input:user-invalid + .error-msg,
   display: none;
 }
 
+.mobile-bottom-nav {
+  display: none;
+}
+
 /* Tablet adjustments (<= 1100px) */
 @media (max-width: 1100px) {
   .project-sidebar {
@@ -1852,7 +1856,60 @@ input:user-invalid + .error-msg,
   /* Main workspace expands to 100vw on mobile */
   .jira-main {
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
+    padding-bottom: calc(74px + env(safe-area-inset-bottom));
+  }
+
+  /* Native App Bottom Navigation Bar */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 95;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid var(--jira-border);
+    padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+    justify-content: space-around;
+    align-items: center;
+    box-shadow: 0 -4px 20px rgba(31, 41, 55, 0.08);
+  }
+
+  .mobile-nav-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    padding: 6px 4px;
+    border: none;
+    border-radius: 12px;
+    background: transparent;
+    color: var(--text-muted);
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+
+  .mobile-nav-tab .mnav-icon {
+    font-size: 17px;
+    line-height: 1.1;
+  }
+
+  .mobile-nav-tab.active {
+    background: var(--cozy-primary-soft);
+    color: var(--cozy-primary-text);
+    font-weight: 700;
+  }
+
+  .jira-toast {
+    bottom: calc(82px + env(safe-area-inset-bottom));
   }
 
   /* Top bar wraps neatly */
@@ -1912,27 +1969,74 @@ input:user-invalid + .error-msg,
     max-height: calc(100vh - 190px);
   }
 
-  /* Timeline Table on Mobile: horizontal scroll */
+  /* Timeline on Mobile: App Card Layout (no clipped End Date!) */
   .jira-timeline-canvas {
-    padding: 14px 16px 30px;
+    padding: 10px 12px 24px;
+  }
+
+  .timeline-toolbar {
+    padding: 10px 12px;
+    gap: 8px;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .timeline-legend {
+    font-size: 12px;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .timeline-controls {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .gantt-zoom-group {
+    display: none;
   }
 
   .gantt-split-container {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
+    flex-direction: column;
+    overflow-x: hidden;
   }
 
   .gantt-left-pane {
     position: static;
-    width: 540px;
-    min-width: 540px;
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    box-shadow: none;
   }
 
-  .gantt-left-header,
+  .gantt-left-header {
+    display: none;
+  }
+
   .gantt-left-row {
-    grid-template-columns: 1fr 104px 126px 126px;
-    gap: 6px;
-    padding: 0 10px;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto;
+    height: auto;
+    padding: 12px;
+    gap: 8px 10px;
+  }
+
+  .gantt-left-row > div:nth-child(1) {
+    min-width: 0;
+  }
+
+  .gantt-left-row > div:nth-child(2) {
+    justify-self: end;
+    max-width: 100%;
+  }
+
+  .gantt-right-pane {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-top: 1px solid var(--jira-border);
   }
 
   /* Hub grid on mobile */
@@ -1965,6 +2069,12 @@ input:user-invalid + .error-msg,
   /* Prevent iOS zoom on input focus */
   input, select, textarea {
     font-size: 16px !important;
+  }
+
+  .phase-date-input {
+    font-size: 13px !important;
+    padding: 6px 8px;
+    min-height: 36px;
   }
 }
 

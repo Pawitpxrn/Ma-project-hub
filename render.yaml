@@ -3,7 +3,7 @@ services:
     name: cuteflow-project-hub
     runtime: static
     branch: main
-    buildCommand: mkdir -p dist && cp index.html styles.css app.js dist/ && cp -r data dist/
+    buildCommand: mkdir -p dist && cp index.html styles.css app.js manifest.webmanifest dist/ && cp -r data dist/
     staticPublishPath: ./dist
     headers:
       - path: /index.html
