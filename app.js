@@ -703,6 +703,14 @@ function getActiveProject() {
   return appState.projects.find((p) => p.id === appState.activeProjectId) || appState.projects[0];
 }
 
+function getNextTaskCode(p) {
+  const maxNum = (p?.tasks || []).reduce((max, t) => {
+    const m = String(t.code || '').match(/-(\d+)$/);
+    return m ? Math.max(max, parseInt(m[1], 10)) : max;
+  }, 0);
+  return `${p?.key || 'PRJ'}-${maxNum + 1}`;
+}
+
 const TYPE_CONFIG = {
   task: { label: 'TASK', icon: '📝', badgeClass: 'badge-blue' },
   bug: { label: 'BUG', icon: '🍓', badgeClass: 'badge-red' },
@@ -857,10 +865,7 @@ function renderHubView() {
    VIEW 2: Jira Board View (บอร์ดการ์ดน่ารัก มินิมอล ละมุนตา)
    ========================================================================== */
 
-function renderBoardView(p) {
-  const container = $('mainWorkspace');
-
-  // Filter tasks by search and phase filter
+function renderBoardColumnsHtml(p) {
   const q = appState.searchQuery.toLowerCase();
   const tasks = p.tasks.filter((t) => {
     if (appState.selectedPhaseFilter !== 'all' && t.phaseId !== appState.selectedPhaseFilter) return false;
@@ -875,6 +880,61 @@ function renderBoardView(p) {
     { key: 'done', label: 'DONE', emoji: '🎉', items: tasks.filter((t) => t.status === 'done') }
   ];
 
+  return columns.map((col) => `
+    <div class="jira-column">
+      <div class="jira-column-header">
+        <span>${col.emoji} ${col.label}</span>
+        <span class="jira-column-counter">${col.items.length}</span>
+      </div>
+
+      <div class="jira-card-list" data-column="${col.key}">
+        ${col.items.map((t) => {
+          const phase = p.phases.find((ph) => ph.id === t.phaseId);
+          const typeMeta = TYPE_CONFIG[t.type] || TYPE_CONFIG.task;
+          const ownerLabel = (t.assignee || '').trim();
+
+          return `
+            <div class="jira-card" draggable="true" data-action="edit-issue" data-id="${esc(t.id)}" data-status="${col.key}">
+              ${phase ? `
+                <div class="jira-card-tags">
+                  <span class="phase-tag" style="background: ${phase.color}18; color: ${phase.color}; border: 1px solid ${phase.color}44;">
+                    ${esc(phase.name)}
+                  </span>
+                </div>
+              ` : ''}
+              
+              <h4 class="jira-card-title">${esc(t.title)}</h4>
+
+              <div class="jira-card-bottom">
+                <div class="card-left-meta">
+                  <span class="drag-grip" title="Drag to reorder priority">⋮⋮</span>
+                  <span class="type-indicator" title="${typeMeta.label}">${typeMeta.icon}</span>
+                  <span title="Priority">${PRIORITY_ICONS[t.priority] || '🟡'}</span>
+                  <span class="card-code-text" style="font-weight: 700; color: var(--cozy-primary);">${esc(t.code || 'RECON-0')}</span>
+                  ${t.dueDate ? `<span class="card-due-pill" title="Due Date: ${esc(t.dueDate)}">📅 ${esc(formatShortDate(t.dueDate, false))}</span>` : ''}
+                </div>
+                ${ownerLabel ? `
+                  <span class="card-assignee-pill" title="Owner: ${esc(ownerLabel)}">
+                    👤 ${esc(ownerLabel)}
+                  </span>
+                ` : `
+                  <div class="card-assignee-avatar" title="Unassigned">?</div>
+                `}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <button type="button" class="quick-add-task-btn" data-action="quick-add-column" data-status="${col.key}">
+        + Create Issue
+      </button>
+    </div>
+  `).join('');
+}
+
+function renderBoardView(p) {
+  const container = $('mainWorkspace');
   const phaseOptions = p.phases.map((ph) => `<option value="${esc(ph.id)}" ${appState.selectedPhaseFilter === ph.id ? 'selected' : ''}>${esc(ph.name)}</option>`).join('');
 
   container.innerHTML = `
@@ -896,7 +956,7 @@ function renderBoardView(p) {
     </div>
 
     <div class="workspace-filter-bar">
-      <input type="text" class="jira-search-input" id="boardSearchInput" value="${esc(appState.searchQuery)}" placeholder="🔍 Search tasks, bugs, assignees...">
+      <input type="text" class="jira-search-input" id="boardSearchInput" value="${esc(appState.searchQuery)}" placeholder="🔍 Search tasks...">
       
       <select id="boardPhaseFilterSelect" style="max-width: 230px; font-size: 13px; padding: 7px 14px; border-radius: 999px;">
         <option value="all">All Phases (${p.phases.length})</option>
@@ -909,58 +969,8 @@ function renderBoardView(p) {
       </div>
     </div>
 
-    <div class="jira-board-canvas">
-      ${columns.map((col) => `
-        <div class="jira-column">
-          <div class="jira-column-header">
-            <span>${col.emoji} ${col.label}</span>
-            <span class="jira-column-counter">${col.items.length}</span>
-          </div>
-
-          <div class="jira-card-list" data-column="${col.key}">
-            ${col.items.map((t) => {
-              const phase = p.phases.find((ph) => ph.id === t.phaseId);
-              const typeMeta = TYPE_CONFIG[t.type] || TYPE_CONFIG.task;
-              const ownerLabel = (t.assignee || '').trim();
-
-              return `
-                <div class="jira-card" draggable="true" data-action="edit-issue" data-id="${esc(t.id)}" data-status="${col.key}">
-                  ${phase ? `
-                    <div class="jira-card-tags">
-                      <span class="phase-tag" style="background: ${phase.color}18; color: ${phase.color}; border: 1px solid ${phase.color}44;">
-                        ${esc(phase.name)}
-                      </span>
-                    </div>
-                  ` : ''}
-                  
-                  <h4 class="jira-card-title">${esc(t.title)}</h4>
-
-                  <div class="jira-card-bottom">
-                    <div class="card-left-meta">
-                      <span class="drag-grip" title="Drag to reorder priority">⋮⋮</span>
-                      <span class="type-indicator" title="${typeMeta.label}">${typeMeta.icon}</span>
-                      <span title="Priority">${PRIORITY_ICONS[t.priority] || '🟡'}</span>
-                      <span style="font-weight: 700; color: var(--cozy-primary);">${esc(t.code || 'RECON-0')}</span>
-                      ${t.dueDate ? `<span class="card-due-pill" title="Due Date: ${esc(t.dueDate)}">📅 ${esc(formatShortDate(t.dueDate, false))}</span>` : ''}
-                    </div>
-                    ${ownerLabel ? `
-                      <span class="card-assignee-pill" title="Owner: ${esc(ownerLabel)}">
-                        👤 ${esc(ownerLabel)}
-                      </span>
-                    ` : `
-                      <div class="card-assignee-avatar" title="Unassigned">?</div>
-                    `}
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-
-          <button type="button" class="quick-add-task-btn" data-action="quick-add-column" data-status="${col.key}">
-            + Create Issue
-          </button>
-        </div>
-      `).join('')}
+    <div class="jira-board-canvas" id="boardCanvas">
+      ${renderBoardColumnsHtml(p)}
     </div>
   `;
 }
@@ -1696,6 +1706,8 @@ function setupEventListeners() {
       appState.activeProjectId = actionBtn.dataset.id;
       appState.currentView = 'project';
       appState.activeSubView = 'board';
+      appState.searchQuery = '';
+      appState.selectedPhaseFilter = 'all';
       renderApp();
     } else if (action === 'go-hub') {
       closeMobileSidebar();
@@ -1754,8 +1766,14 @@ function setupEventListeners() {
       if (pane && p) {
         const cal = buildTimelineCalendar(p.phases);
         const dayWidth = appState.ganttZoom || 34;
-        const mIdx = cal.days.findIndex((d) => p.phases.some((ph) => ph.start === d.dateStr && ph.start === ph.end));
-        const target = Math.max(0, (mIdx >= 0 ? mIdx : 0) * dayWidth - 100);
+        const goLivePhase = p.phases.find((ph) => {
+          const n = (ph.name || '').toLowerCase();
+          return n.includes('go-live') || n.includes('golive') || n.includes('milestone') || n.includes('launch');
+        }) || [...p.phases].reverse().find((ph) => ph.start && ph.start === ph.end);
+        const targetDate = p.goLiveDate || goLivePhase?.end || goLivePhase?.start || '';
+        const mIdx = cal.days.findIndex((d) => d.dateStr === targetDate);
+        const centerOffset = Math.max(80, Math.floor(pane.clientWidth / 2) - Math.floor(dayWidth / 2));
+        const target = Math.max(0, (mIdx >= 0 ? mIdx : Math.max(0, cal.days.length - 1)) * dayWidth - centerOffset);
         pane.scrollTo({ left: target, behavior: 'smooth' });
         appState.hasManuallyScrolledGantt = true;
       }
@@ -1781,7 +1799,12 @@ function setupEventListeners() {
     if (e.target.id === 'boardSearchInput') {
       appState.searchQuery = e.target.value;
       const p = getActiveProject();
-      if (p) renderBoardView(p);
+      const canvas = $('boardCanvas');
+      if (p && canvas) {
+        canvas.innerHTML = renderBoardColumnsHtml(p);
+      } else if (p) {
+        renderBoardView(p);
+      }
     }
   });
 
@@ -1789,7 +1812,12 @@ function setupEventListeners() {
     if (e.target.id === 'boardPhaseFilterSelect') {
       appState.selectedPhaseFilter = e.target.value;
       const p = getActiveProject();
-      if (p) renderBoardView(p);
+      const canvas = $('boardCanvas');
+      if (p && canvas) {
+        canvas.innerHTML = renderBoardColumnsHtml(p);
+      } else if (p) {
+        renderBoardView(p);
+      }
     }
 
     // Direct date change in timeline table
@@ -1897,10 +1925,9 @@ function setupEventListeners() {
         task.desc = desc;
       }
     } else {
-      const nextNum = p.tasks.length + 1;
       p.tasks.unshift({
         id: uid('task'),
-        code: `${p.key || 'PRJ'}-${nextNum}`,
+        code: getNextTaskCode(p),
         title,
         type,
         status,
@@ -1980,13 +2007,9 @@ function setupEventListeners() {
     const existingIdx = p.tasks.findIndex((t) => t.phaseId === targetPhaseId);
     if (createTodoTask) {
       if (existingIdx === -1) {
-        const maxNum = p.tasks.reduce((max, t) => {
-          const m = String(t.code || '').match(/-(\d+)$/);
-          return m ? Math.max(max, parseInt(m[1], 10)) : max;
-        }, 0);
         p.tasks.push({
           id: uid('task'),
-          code: `${p.key || 'PRJ'}-${maxNum + 1}`,
+          code: getNextTaskCode(p),
           title: name,
           type: 'task',
           status: 'todo',
@@ -2021,6 +2044,9 @@ function setupEventListeners() {
     const phaseId = $('phaseFormId').value;
     if (p && phaseId && confirm('ยืนยันลบเฟสนี้?')) {
       p.phases = p.phases.filter((x) => x.id !== phaseId);
+      p.tasks.forEach((t) => {
+        if (t.phaseId === phaseId) t.phaseId = '';
+      });
       persistState();
       $('phaseModal').close();
       renderApp();
